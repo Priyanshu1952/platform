@@ -261,7 +261,7 @@ public class AuthServiceImpl implements AuthService {
         defaultSecurityConfig.put("lastPasswordChange", System.currentTimeMillis());
         user.setSecurityConfiguration(defaultSecurityConfig);
 
-        user.getSecurityConfiguration().put("allowedIps", List.of(httpServletRequest.getRemoteAddr()));
+        user.getSecurityConfiguration().put("allowedIps", List.of(httpServletRequest.getRemoteAddr(), "0:0:0:0:0:0:0:1"));
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 

@@ -300,3 +300,173 @@ Caused by: org.springframework.util.PlaceholderResolutionException: Could not re
 2025-07-24T12:15:11.200+05:30  INFO 7257 --- [ums] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
 2025-07-24T12:15:11.681+05:30  INFO 7257 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8085 (http) with context path '/'
 2025-07-24T12:15:11.692+05:30  INFO 7257 --- [ums] [main] com.tj.services.ums.UmsApplication       : Started UmsApplication in 6.219 seconds (process running for 6.913)
+2025-07-24T12:30:40.635+05:30  INFO 7257 --- [ums] [http-nio-8085-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-24T12:30:40.639+05:30  INFO 7257 --- [ums] [http-nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-24T12:30:40.680+05:30  INFO 7257 --- [ums] [http-nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 40 ms
+2025-07-24T12:30:41.270+05:30  INFO 7257 --- [ums] [http-nio-8085-exec-1] c.t.s.ums.service.impl.AuthServiceImpl   : User authenticated with ID: 97cd8237-fe1f-4e26-90e7-29a672da1d98
+2025-07-24T12:30:41.308+05:30  WARN 7257 --- [ums] [http-nio-8085-exec-1] c.t.s.u.service.impl.DeviceServiceImpl   : IP blocked by system policy: 0:0:0:0:0:0:0:1
+2025-07-24T12:30:52.037+05:30  WARN 7257 --- [ums] [task-1] c.t.s.u.s.impl.LoginAuditServiceImpl     : Sent login alert email to wasaxav718@modirosa.com for IP 0:0:0:0:0:0:0:1
+2025-07-24T12:33:35.898+05:30  INFO 7257 --- [ums] [http-nio-8085-exec-4] c.t.s.ums.service.impl.AuthServiceImpl   : User authenticated with ID: 97cd8237-fe1f-4e26-90e7-29a672da1d98
+2025-07-24T12:33:35.903+05:30  WARN 7257 --- [ums] [http-nio-8085-exec-4] c.t.s.u.service.impl.DeviceServiceImpl   : IP blocked by system policy: 0:0:0:0:0:0:0:1
+2025-07-24T12:33:45.399+05:30  WARN 7257 --- [ums] [task-2] c.t.s.u.s.impl.LoginAuditServiceImpl     : Sent login alert email to wasaxav718@modirosa.com for IP 0:0:0:0:0:0:0:1
+2025-07-24T12:37:29.942+05:30  INFO 7257 --- [ums] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-24T12:37:29.971+05:30  INFO 7257 --- [ums] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-07-24T12:37:30.023+05:30  INFO 7257 --- [ums] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-24T12:37:30.053+05:30  INFO 7257 --- [ums] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-07-24T12:37:30.060+05:30  INFO 7257 --- [ums] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-07-24T12:37:31.795+05:30  INFO 10520 --- [ums] [main] com.tj.services.ums.UmsApplication       : Starting UmsApplication v0.0.1-SNAPSHOT using Java 21.0.7 with PID 10520 (/Users/priyanshushukla/Downloads/ums/build/libs/ums-0.0.1-SNAPSHOT.jar started by priyanshushukla in /Users/priyanshushukla/Downloads/ums)
+2025-07-24T12:37:31.797+05:30  INFO 10520 --- [ums] [main] com.tj.services.ums.UmsApplication       : The following 1 profile is active: "dev"
+2025-07-24T12:37:32.478+05:30  INFO 10520 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-24T12:37:32.478+05:30  INFO 10520 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-24T12:37:32.655+05:30  INFO 10520 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 168 ms. Found 6 JPA repository interfaces.
+2025-07-24T12:37:32.905+05:30  INFO 10520 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-24T12:37:32.906+05:30  INFO 10520 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2025-07-24T12:37:32.921+05:30  INFO 10520 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.AuditLogRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:37:32.921+05:30  INFO 10520 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.AuthUserRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:37:32.921+05:30  INFO 10520 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.DeviceCacheRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:37:32.922+05:30  INFO 10520 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.DeviceInfoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:37:32.922+05:30  INFO 10520 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.GeoLocationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:37:32.922+05:30  INFO 10520 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.RoleRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:37:32.922+05:30  INFO 10520 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 15 ms. Found 0 JDBC repository interfaces.
+2025-07-24T12:37:33.454+05:30  INFO 10520 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8085 (http)
+2025-07-24T12:37:33.468+05:30  INFO 10520 --- [ums] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-07-24T12:37:33.468+05:30  INFO 10520 --- [ums] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2025-07-24T12:37:33.498+05:30  INFO 10520 --- [ums] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-07-24T12:37:33.498+05:30  INFO 10520 --- [ums] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1655 ms
+2025-07-24T12:37:33.580+05:30  INFO 10520 --- [ums] [main] com.tj.services.ums.utils.JwtUtil        : JWT secret: 9bedf3acf2d05769e3e891b678b3850afc6ba7aa389adad0c8c2c0780fa6b5f3
+2025-07-24T12:37:33.687+05:30  INFO 10520 --- [ums] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-24T12:37:33.748+05:30  INFO 10520 --- [ums] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2025-07-24T12:37:33.781+05:30  INFO 10520 --- [ums] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-07-24T12:37:33.899+05:30  INFO 10520 --- [ums] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-07-24T12:37:33.983+05:30  INFO 10520 --- [ums] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6a3a56de
+2025-07-24T12:37:33.985+05:30  INFO 10520 --- [ums] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-07-24T12:37:34.039+05:30  WARN 10520 --- [ums] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-24T12:37:34.055+05:30  INFO 10520 --- [ums] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.18
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-07-24T12:37:34.361+05:30  INFO 10520 --- [ums] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-24T12:37:35.341+05:30  INFO 10520 --- [ums] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-24T12:37:35.614+05:30  INFO 10520 --- [ums] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-24T12:37:36.046+05:30  INFO 10520 --- [ums] [main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2025-07-24T12:37:36.046+05:30  WARN 10520 --- [ums] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2025-07-24T12:37:36.069+05:30  INFO 10520 --- [ums] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-07-24T12:37:37.027+05:30  INFO 10520 --- [ums] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-07-24T12:37:37.419+05:30  INFO 10520 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8085 (http) with context path '/'
+2025-07-24T12:37:37.430+05:30  INFO 10520 --- [ums] [main] com.tj.services.ums.UmsApplication       : Started UmsApplication in 6.133 seconds (process running for 7.013)
+2025-07-24T12:37:44.181+05:30  INFO 10520 --- [ums] [http-nio-8085-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-24T12:37:44.182+05:30  INFO 10520 --- [ums] [http-nio-8085-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-24T12:37:44.184+05:30  INFO 10520 --- [ums] [http-nio-8085-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2025-07-24T12:37:44.497+05:30  INFO 10520 --- [ums] [http-nio-8085-exec-2] c.t.s.ums.service.impl.AuthServiceImpl   : User authenticated with ID: 97cd8237-fe1f-4e26-90e7-29a672da1d98
+2025-07-24T12:37:44.503+05:30  WARN 10520 --- [ums] [http-nio-8085-exec-2] c.t.s.u.service.impl.DeviceServiceImpl   : IP blocked by system policy: 0:0:0:0:0:0:0:1
+2025-07-24T12:37:54.445+05:30  WARN 10520 --- [ums] [task-1] c.t.s.u.s.impl.LoginAuditServiceImpl     : Sent login alert email to wasaxav718@modirosa.com for IP 0:0:0:0:0:0:0:1
+2025-07-24T12:47:31.210+05:30  INFO 10520 --- [ums] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-24T12:47:31.241+05:30  INFO 10520 --- [ums] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-07-24T12:47:31.292+05:30  INFO 10520 --- [ums] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-24T12:47:31.330+05:30  INFO 10520 --- [ums] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-07-24T12:47:31.338+05:30  INFO 10520 --- [ums] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-07-24T12:47:33.181+05:30  INFO 11926 --- [ums] [main] com.tj.services.ums.UmsApplication       : Starting UmsApplication v0.0.1-SNAPSHOT using Java 21.0.7 with PID 11926 (/Users/priyanshushukla/Downloads/ums/build/libs/ums-0.0.1-SNAPSHOT.jar started by priyanshushukla in /Users/priyanshushukla/Downloads/ums)
+2025-07-24T12:47:33.183+05:30  INFO 11926 --- [ums] [main] com.tj.services.ums.UmsApplication       : The following 1 profile is active: "dev"
+2025-07-24T12:47:33.855+05:30  INFO 11926 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-24T12:47:33.855+05:30  INFO 11926 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-24T12:47:34.032+05:30  INFO 11926 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 168 ms. Found 6 JPA repository interfaces.
+2025-07-24T12:47:34.283+05:30  INFO 11926 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-24T12:47:34.284+05:30  INFO 11926 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2025-07-24T12:47:34.295+05:30  INFO 11926 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.AuditLogRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:47:34.295+05:30  INFO 11926 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.AuthUserRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:47:34.296+05:30  INFO 11926 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.DeviceCacheRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:47:34.296+05:30  INFO 11926 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.DeviceInfoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:47:34.296+05:30  INFO 11926 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.GeoLocationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:47:34.296+05:30  INFO 11926 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.RoleRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T12:47:34.296+05:30  INFO 11926 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 11 ms. Found 0 JDBC repository interfaces.
+2025-07-24T12:47:34.815+05:30  INFO 11926 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8085 (http)
+2025-07-24T12:47:34.828+05:30  INFO 11926 --- [ums] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-07-24T12:47:34.828+05:30  INFO 11926 --- [ums] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2025-07-24T12:47:34.858+05:30  INFO 11926 --- [ums] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-07-24T12:47:34.858+05:30  INFO 11926 --- [ums] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1638 ms
+2025-07-24T12:47:34.942+05:30  INFO 11926 --- [ums] [main] com.tj.services.ums.utils.JwtUtil        : JWT secret: 9bedf3acf2d05769e3e891b678b3850afc6ba7aa389adad0c8c2c0780fa6b5f3
+2025-07-24T12:47:35.042+05:30  INFO 11926 --- [ums] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-24T12:47:35.108+05:30  INFO 11926 --- [ums] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2025-07-24T12:47:35.140+05:30  INFO 11926 --- [ums] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-07-24T12:47:35.260+05:30  INFO 11926 --- [ums] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-07-24T12:47:35.364+05:30  INFO 11926 --- [ums] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@441016d6
+2025-07-24T12:47:35.366+05:30  INFO 11926 --- [ums] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-07-24T12:47:35.412+05:30  WARN 11926 --- [ums] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-24T12:47:35.434+05:30  INFO 11926 --- [ums] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.18
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-07-24T12:47:35.739+05:30  INFO 11926 --- [ums] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-24T12:47:36.725+05:30  INFO 11926 --- [ums] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-24T12:47:36.984+05:30  INFO 11926 --- [ums] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-24T12:47:37.408+05:30  INFO 11926 --- [ums] [main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2025-07-24T12:47:37.409+05:30  WARN 11926 --- [ums] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2025-07-24T12:47:37.433+05:30  INFO 11926 --- [ums] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-07-24T12:47:38.380+05:30  INFO 11926 --- [ums] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-07-24T12:47:38.775+05:30  INFO 11926 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8085 (http) with context path '/'
+2025-07-24T12:47:38.786+05:30  INFO 11926 --- [ums] [main] com.tj.services.ums.UmsApplication       : Started UmsApplication in 6.348 seconds (process running for 7.258)
+2025-07-24T12:47:44.849+05:30  INFO 11926 --- [ums] [http-nio-8085-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-24T12:47:44.850+05:30  INFO 11926 --- [ums] [http-nio-8085-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-24T12:47:44.853+05:30  INFO 11926 --- [ums] [http-nio-8085-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-07-24T13:02:05.693+05:30  INFO 11926 --- [ums] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-07-24T13:02:05.721+05:30  INFO 11926 --- [ums] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-07-24T13:02:05.759+05:30  INFO 11926 --- [ums] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-24T13:02:05.831+05:30  INFO 11926 --- [ums] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-07-24T13:02:05.838+05:30  INFO 11926 --- [ums] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-07-24T13:02:07.208+05:30  INFO 13925 --- [ums] [main] com.tj.services.ums.UmsApplication       : Starting UmsApplication v0.0.1-SNAPSHOT using Java 21.0.7 with PID 13925 (/Users/priyanshushukla/Downloads/ums/build/libs/ums-0.0.1-SNAPSHOT.jar started by priyanshushukla in /Users/priyanshushukla/Downloads/ums)
+2025-07-24T13:02:07.210+05:30  INFO 13925 --- [ums] [main] com.tj.services.ums.UmsApplication       : The following 1 profile is active: "dev"
+2025-07-24T13:02:07.897+05:30  INFO 13925 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-24T13:02:07.897+05:30  INFO 13925 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-24T13:02:08.067+05:30  INFO 13925 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 161 ms. Found 6 JPA repository interfaces.
+2025-07-24T13:02:08.314+05:30  INFO 13925 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2025-07-24T13:02:08.314+05:30  INFO 13925 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2025-07-24T13:02:08.327+05:30  INFO 13925 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.AuditLogRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T13:02:08.327+05:30  INFO 13925 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.AuthUserRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T13:02:08.328+05:30  INFO 13925 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.DeviceCacheRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T13:02:08.328+05:30  INFO 13925 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.DeviceInfoRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T13:02:08.328+05:30  INFO 13925 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.GeoLocationRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T13:02:08.328+05:30  INFO 13925 --- [ums] [main] .RepositoryConfigurationExtensionSupport : Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.tj.services.ums.repository.RoleRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2025-07-24T13:02:08.328+05:30  INFO 13925 --- [ums] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 13 ms. Found 0 JDBC repository interfaces.
+2025-07-24T13:02:08.843+05:30  INFO 13925 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8085 (http)
+2025-07-24T13:02:08.859+05:30  INFO 13925 --- [ums] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-07-24T13:02:08.859+05:30  INFO 13925 --- [ums] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2025-07-24T13:02:08.892+05:30  INFO 13925 --- [ums] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-07-24T13:02:08.892+05:30  INFO 13925 --- [ums] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1645 ms
+2025-07-24T13:02:08.965+05:30  INFO 13925 --- [ums] [main] com.tj.services.ums.utils.JwtUtil        : JWT secret: 9bedf3acf2d05769e3e891b678b3850afc6ba7aa389adad0c8c2c0780fa6b5f3
+2025-07-24T13:02:09.062+05:30  INFO 13925 --- [ums] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-24T13:02:09.124+05:30  INFO 13925 --- [ums] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2025-07-24T13:02:09.157+05:30  INFO 13925 --- [ums] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-07-24T13:02:09.279+05:30  INFO 13925 --- [ums] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-07-24T13:02:09.409+05:30  INFO 13925 --- [ums] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@2ed84be9
+2025-07-24T13:02:09.410+05:30  INFO 13925 --- [ums] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-07-24T13:02:09.456+05:30  WARN 13925 --- [ums] [main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-24T13:02:09.471+05:30  INFO 13925 --- [ums] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.18
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-07-24T13:02:09.783+05:30  INFO 13925 --- [ums] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-24T13:02:10.841+05:30  INFO 13925 --- [ums] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-24T13:02:11.116+05:30  INFO 13925 --- [ums] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-24T13:02:11.513+05:30  INFO 13925 --- [ums] [main] c.t.s.ums.config.SystemSecurityConfig    : SystemSecurityConfig: allowUnlistedIps = true
+2025-07-24T13:02:11.550+05:30  INFO 13925 --- [ums] [main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2025-07-24T13:02:11.550+05:30  WARN 13925 --- [ums] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2025-07-24T13:02:11.575+05:30  INFO 13925 --- [ums] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-07-24T13:02:12.592+05:30  INFO 13925 --- [ums] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-07-24T13:02:12.989+05:30  INFO 13925 --- [ums] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8085 (http) with context path '/'
+2025-07-24T13:02:13.000+05:30  INFO 13925 --- [ums] [main] com.tj.services.ums.UmsApplication       : Started UmsApplication in 6.299 seconds (process running for 6.983)
+2025-07-24T13:02:18.981+05:30  INFO 13925 --- [ums] [http-nio-8085-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-24T13:02:18.982+05:30  INFO 13925 --- [ums] [http-nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-07-24T13:02:18.985+05:30  INFO 13925 --- [ums] [http-nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-07-24T13:03:00.904+05:30  INFO 13925 --- [ums] [http-nio-8085-exec-5] c.t.s.ums.service.impl.AuthServiceImpl   : User authenticated with ID: 1e53d71a-4eb8-42c8-ad1c-5d0f2100f262

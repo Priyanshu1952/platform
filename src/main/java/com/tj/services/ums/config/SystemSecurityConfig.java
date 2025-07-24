@@ -5,6 +5,7 @@ import com.tj.services.ums.security.UserDetailsServiceImpl;
 import com.tj.services.ums.utils.JwtUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@Slf4j
 public class SystemSecurityConfig {
     // Basic IP Controls
     private boolean allowUnlistedIps = false;
@@ -73,6 +75,7 @@ public class SystemSecurityConfig {
 
     @PostConstruct
     public void init() {
+        log.info("SystemSecurityConfig: allowUnlistedIps = {}", allowUnlistedIps);
         // Normalize all IPs and validate them
         this.normalizedBlockedIps.addAll(
                 globalBlockedIps.stream()

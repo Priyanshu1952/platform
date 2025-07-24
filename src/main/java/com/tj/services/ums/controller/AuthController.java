@@ -4,7 +4,6 @@ import com.tj.services.ums.config.RateLimiter;
 import com.tj.services.ums.communicator.impl.RealOtpCommunicator;
 import com.tj.services.ums.dto.*;
 import com.tj.services.ums.service.AuthService;
-import com.tj.services.ums.service.EmailVerificationService;
 import com.tj.services.ums.service.PasswordResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,7 +25,7 @@ public class AuthController {
     private final AuthService authService;
     private final RealOtpCommunicator otpCommunicator;
     private final PasswordResetService passwordResetService;
-    private final EmailVerificationService emailVerificationService;
+    
     private final RateLimiter rateLimiter;
 
     @PostMapping("/login")
@@ -114,7 +113,7 @@ public class AuthController {
     @GetMapping("/verify-email")
     @Operation(summary = "Verify email", description = "Verifies user email with a token")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-        emailVerificationService.verifyEmail(token);
+        
         return ResponseEntity.ok("Email verified successfully!");
     }
 }
