@@ -1,0 +1,141 @@
+<configuration scan="true" scanPeriod="120 seconds">
+<!--
+<turboFilter class="ch.qos.logback.classic.turbo.MDCFilter">
+<MDCKey>userid</MDCKey>
+    <Value>50002</Value>
+    <OnMatch>ACCEPT</OnMatch>
+    <onMismatch>NEUTRAL</onMismatch>
+</turboFilter>
+!-->
+    <appender name="rollingFileGeneralLogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>
+            @ROOT_LOG_FILE_PATH@
+        </File>
+        <encoder>
+            <pattern>
+               %d %r [%t] [%X{dd.trace_id}] [%X{ip}] [%X{userid}] %-5p %class{70}#%M -%L - %m%n
+            </pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>10</maxIndex>
+            <FileNamePattern>
+                @ROOT_LOG_FILE_PATH@.%i
+            </FileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>50MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+    <appender name="rollingFileRestAPILogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>@API_LOG_FILE_PATH@</File>
+        <encoder>
+            <pattern>%d %r [%t] [%X{dd.trace_id}] [%X{ip}] [%X{userid}] %-5p %class{70}#%M -%L - %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>10</maxIndex>
+            <FileNamePattern>
+                @API_LOG_FILE_PATH@.%i
+            </FileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>50MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+    <!--
+    <appender name="rollingTGSServiceLogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>
+                @SERVICE_LOG_FILE_PATH@
+        </File>
+
+          <filter class="com.tgs.services.base.CustomLogBackFilter" />
+
+
+        <encoder>
+            <pattern>
+                  %d %r [%t] [%.-15X{HOSTNAME}] [%X{dd.trace_id}] [%X{dd.span_id}] [%X{ip}] [%X{userid}] %-5p %class{70}#%M -%L - %m%n
+            </pattern>
+        </encoder>
+
+
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>@SERVICE_LOG_ROTATION_MAX_INDEX</maxIndex>
+            <FileNamePattern>
+                    @SERVICE_LOG_FILE_PATH@.%i
+           </FileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>150MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+-->
+    <appender name="rollingServicePerformanceLogger" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>
+              @HEALTH_LOG_FILE_PATH@
+        </File>
+        <encoder>
+            <pattern>
+                     %d %r [%t] [%X{ip}] [%X{userid}] %-5p %class{70}#%M -%L - %m%n
+            </pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>20</maxIndex>
+            <FileNamePattern>
+                            @HEALTH_LOG_FILE_PATH@.%i
+            </FileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>50MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="rollingMissingInfoLogger"
+       class="ch.qos.logback.core.rolling.RollingFileAppender">
+       <File>
+          @MISSING_INFO_LOG_FILE_PATH@
+       </File>
+       <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            </encoder>
+       <!-- <encoder>
+          <pattern>
+             %d %r [%t] [%X{ip}] [%X{userid}] %-5p %class{70}#%M -%L - %m%n
+          </pattern>
+       </encoder> -->
+       <rollingPolicy
+          class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+          <maxIndex>10</maxIndex>
+          <FileNamePattern>
+             @MISSING_INFO_LOG_FILE_PATH@.%i
+          </FileNamePattern>
+       </rollingPolicy>
+       <triggeringPolicy
+          class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+          <MaxFileSize>50MB</MaxFileSize>
+       </triggeringPolicy>
+    </appender>
+
+
+    <root name="" additivity="false" level="@ROOT_LOG_LEVEL@">
+        <appender-ref ref="rollingFileGeneralLogger" />
+    </root>
+
+    <logger name="org.apache.axis2.deployment.ModuleDeployer" level="OFF"/>
+    <logger name="org.apache.axis.client.Call" level="OFF"/>
+    <logger name="v2.bfm.v6_8.IURExtendedSoapSerializationEnvelope" level="OFF"/>
+
+    <logger name="com.tgs.services.loggingservice.FileLogging" additivity="false" level="@SERVICE_LOG_LEVEL@">
+        <appender-ref ref="rollingFileRestAPILogger" />
+    </logger>
+   <!--
+    <logger name="com.tgs" additivity="false" level="@SERVICE_LOG_LEVEL@">
+        <appender-ref ref="rollingTGSServiceLogger" />
+    </logger>
+   -->
+    <logger name="com.tgs.services.loggingservice.ServiceHealthLogging" additivity="false" level="INFO">
+        <appender-ref ref="rollingServicePerformanceLogger" />
+    </logger>
+    <logger name="com.tgs.services.loggingservice.MissingInfoLogging" additivity="false" level="INFO">
+       <appender-ref ref="rollingMissingInfoLogger" />
+    </logger>
+
+</configuration>

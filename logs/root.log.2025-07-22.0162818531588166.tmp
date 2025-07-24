@@ -1,0 +1,39 @@
+2025-07-23T00:36:14.711+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h36m40s681ms).
+2025-07-23T01:59:14.887+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h23m174ms).
+2025-07-23T03:14:15.892+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h15m1s2ms).
+2025-07-23T04:04:29.427+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m42s940ms).
+2025-07-23T05:42:03.096+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h37m33s679ms).
+2025-07-23T07:23:23.781+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h41m20s686ms).
+2025-07-23T08:45:19.663+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h21m55s882ms).
+2025-07-23T10:23:07.374+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h37m47s710ms).
+2025-07-23T11:20:28.438+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=57m21s61ms).
+2025-07-23T11:29:52.502+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-3] c.t.s.ums.service.impl.AuthServiceImpl   : User saved to database with ID: 04a648b8-7be7-495b-a41f-7e4744ad273e
+2025-07-23T11:29:52.517+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-3] c.t.s.ums.service.impl.AuthServiceImpl   : User saved with ID: 04a648b8-7be7-495b-a41f-7e4744ad273e
+2025-07-23T11:29:52.517+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-3] c.t.s.ums.service.impl.AuthServiceImpl   : User created and saved: id=04a648b8-7be7-495b-a41f-7e4744ad273e, email=jamini6537@mvpmedix.com
+2025-07-23T11:29:52.517+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-3] c.t.s.ums.service.impl.AuthServiceImpl   : Sending verification email to: jamini6537@mvpmedix.com
+2025-07-23T11:29:52.682+05:30  WARN 68292 --- [ums] [http-nio-8086-exec-3] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23505
+2025-07-23T11:29:52.683+05:30 ERROR 68292 --- [ums] [http-nio-8086-exec-3] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: duplicate key value violates unique constraint "uk6jqfsuvys3lan090p4mk16a5t"
+  Detail: Key (email)=(jamini6537@mvpmedix.com) already exists.
+2025-07-23T11:36:54.290+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-5] c.t.s.ums.service.impl.AuthServiceImpl   : User saved to database with ID: 59a97ce6-0a33-45bf-8aee-97efaf730819
+2025-07-23T11:36:54.294+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-5] c.t.s.ums.service.impl.AuthServiceImpl   : User saved with ID: 59a97ce6-0a33-45bf-8aee-97efaf730819
+2025-07-23T11:36:54.294+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-5] c.t.s.ums.service.impl.AuthServiceImpl   : User created and saved: id=59a97ce6-0a33-45bf-8aee-97efaf730819, email=tiheta8178@modirosa.com
+2025-07-23T11:36:54.294+05:30  INFO 68292 --- [ums] [http-nio-8086-exec-5] c.t.s.ums.service.impl.AuthServiceImpl   : Sending verification email to: tiheta8178@modirosa.com
+2025-07-23T12:31:10.690+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=13m41s573ms).
+2025-07-23T12:33:05.480+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m24s766ms).
+2025-07-23T12:40:53.356+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=7m47s880ms).
+2025-07-23T12:58:55.189+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m31s708ms).
+2025-07-23T13:00:12.113+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m16s921ms).
+2025-07-23T13:46:18.140+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=22m5s776ms).
+2025-07-23T14:31:04.542+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=25m46s136ms).
+2025-07-23T14:51:55.279+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=20m50s754ms).
+2025-07-23T15:31:03.203+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m37s703ms).
+2025-07-23T15:34:54.732+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m51s541ms).
+2025-07-23T16:31:19.621+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m54s459ms).
+2025-07-23T16:51:33.935+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=13m44s196ms).
+2025-07-23T17:51:59.216+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m54s739ms).
+2025-07-23T18:20:07.161+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m7s708ms).
+2025-07-23T18:34:47.798+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=13m40s535ms).
+2025-07-23T20:11:51.726+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h37m3s929ms).
+2025-07-23T21:36:03.177+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h24m11s451ms).
+2025-07-23T23:15:02.670+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h38m59s492ms).
+2025-07-23T23:52:13.627+05:30  WARN 68292 --- [ums] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=37m10s955ms).

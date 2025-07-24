@@ -1,0 +1,101 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.tgs.services'
+version = '0.0.1-SNAPSHOT'
+
+bootJar {
+    doLast {
+        file("build/resources/main/application.properties").text = file("build/resources/main/application.properties").text.replace("server.port=8086", "server.port=8085")
+    }
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' } // For uap-java
+	maven { url "https://maven.aerospike.com/artifactory/aerospike-maven" }
+}
+
+ext {
+	set('springAiVersion', "1.0.0")
+	set('jjwtVersion', '0.11.5')
+	set('geoip2Version', '3.0.1')
+	set('uapJavaVersion', '1.5.3')
+	set('hibernateTypesVersion', '2.21.1')
+}
+
+dependencies {
+	// Spring Boot Starters
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+	// Aerospike
+	implementation 'com.aerospike:aerospike-client:8.0.0'
+	implementation group: 'com.aerospike', name: 'spring-data-aerospike', version: '5.0.1'
+
+//	compileOnly 'com.aerospike.spring-data-aerospike:1.2.1'
+
+	// Security & JWT
+	implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+	implementation "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+	implementation "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// Database
+	runtimeOnly 'org.postgresql:postgresql'
+	implementation "com.vladmihalcea:hibernate-types-60:${hibernateTypesVersion}"
+
+	// Device Metadata
+	implementation "com.github.ua-parser:uap-java:${uapJavaVersion}"
+	implementation "com.maxmind.geoip2:geoip2:${geoip2Version}"
+
+	// Utilities
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.yaml:snakeyaml:1.33'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+configurations.all {
+	resolutionStrategy {
+		force 'org.yaml:snakeyaml:1.33'
+	}
+}
