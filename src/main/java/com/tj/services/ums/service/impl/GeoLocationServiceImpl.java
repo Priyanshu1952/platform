@@ -5,20 +5,38 @@ import com.tj.services.ums.model.GeoLocation;
 import com.tj.services.ums.repository.GeoLocationRepository;
 import com.tj.services.ums.service.GeoLocationService;
 import jakarta.transaction.Transactional;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class GeoLocationServiceImpl implements GeoLocationService {
 
-    private static final SystemSecurityConfig.CIDRRange PROXY_IPS = null;
+    @Value("${security.ip.proxy-ips:}")
+    private List<String> proxyIpStrings;
+
+    private List<SystemSecurityConfig.CIDRRange> PROXY_IPS = new ArrayList<>();
+
     private final GeoLocationRepository geoLocationRepository;
 
     public GeoLocationServiceImpl(GeoLocationRepository geoLocationRepository) {
         this.geoLocationRepository = geoLocationRepository;
+    }
+
+    @PostConstruct
+    public void init() {
+        if (proxyIpStrings != null) {
+            this.PROXY_IPS = proxyIpStrings.stream()
+                    .map(SystemSecurityConfig.CIDRRange::parse)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -53,7 +71,15 @@ public class GeoLocationServiceImpl implements GeoLocationService {
 
     @Override
     public boolean isProxyConnection(String ip) {
-        return PROXY_IPS.contains(ip);
+        if (PROXY_IPS.isEmpty()) {
+            return false;
+        }
+        for (SystemSecurityConfig.CIDRRange range : PROXY_IPS) {
+            if (range.contains(ip)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

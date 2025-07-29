@@ -12,6 +12,8 @@ public interface DeviceInfoRepository extends JpaRepository<DeviceInfo, Long> {
 
     Optional<DeviceInfo> findByFullDeviceId(String fullDeviceId);
 
+    Optional<DeviceInfo> findFirstByFullDeviceIdOrderByLastLoginTimeDesc(String fullDeviceId);
+
     @Query("SELECT COUNT(d) FROM DeviceInfo d WHERE d.user.id = :userId")
     int countByUserId(String userId);
 

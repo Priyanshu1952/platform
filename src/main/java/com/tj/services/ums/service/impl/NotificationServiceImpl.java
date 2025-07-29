@@ -1,5 +1,6 @@
 package com.tj.services.ums.service.impl;
 
+import com.tj.services.ums.exception.NotificationException;
 import com.tj.services.ums.service.NotificationService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -20,13 +21,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-
-    // Custom exception class as inner class
-    public static class NotificationException extends RuntimeException {
-        public NotificationException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
 
     @Override
     public void sendSecurityAlertEmail(String to, String subject, String message) {
@@ -86,7 +80,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendMail(String to, String subject, String body) {
-
+        sendMail(to, subject, body, false);
     }
 
     private String buildEmailContent(String templateName, Map<String, Object> variables) {

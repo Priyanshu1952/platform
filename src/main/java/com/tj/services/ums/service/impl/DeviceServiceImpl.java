@@ -3,10 +3,13 @@ package com.tj.services.ums.service.impl;
 import com.tj.services.ums.helper.DeviceMetadataExtractor;
 import com.tj.services.ums.config.SystemSecurityConfig;
 import com.tj.services.ums.dto.DeviceMetadata;
+import com.tj.services.ums.dto.SendOtpRequest;
 import com.tj.services.ums.exception.DeviceNotFoundException;
 import com.tj.services.ums.model.AuthUser;
 import com.tj.services.ums.model.DeviceInfo;
 import com.tj.services.ums.model.GeoLocation;
+import com.tj.services.ums.model.OtpType;
+
 import com.tj.services.ums.repository.DeviceInfoRepository;
 import com.tj.services.ums.service.DeviceService;
 import com.tj.services.ums.service.GeoLocationService;
@@ -57,7 +60,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     @Transactional(readOnly = true)
     public DeviceInfo getDeviceInfo(String fullDeviceId) {
-        return deviceInfoRepository.findByFullDeviceId(fullDeviceId)
+        return deviceInfoRepository.findFirstByFullDeviceIdOrderByLastLoginTimeDesc(fullDeviceId)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found: " + fullDeviceId));
     }
 
@@ -65,7 +68,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Transactional
     public void sendOtp(String fullDeviceId, String mobile) {
         DeviceInfo device = getDeviceInfo(fullDeviceId);
-        otpService.sendOtp(fullDeviceId, mobile, device.getUser().getEmail());
+        otpService.sendOtp(new SendOtpRequest(fullDeviceId, mobile, device.getUser().getEmail(), OtpType.SMS));
         device.setLastOtpSent(LocalDateTime.now());
         deviceInfoRepository.save(device);
         log.info("OTP sent to device {} for mobile {}", fullDeviceId, mobile);

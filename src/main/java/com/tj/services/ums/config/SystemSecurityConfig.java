@@ -210,7 +210,14 @@ public class SystemSecurityConfig {
                 .addFilterBefore(jwtBlacklistFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/otp/login", "/actuator/health").permitAll()
+                        .requestMatchers(
+    "/api/v1/auth/login",
+    "/api/v1/auth/register",
+    "/api/v1/auth/otp/login",
+    "/api/v1/auth/otp/email/request",
+    "/api/v1/auth/otp/email/login",
+    "/actuator/health"
+).permitAll()
                         .anyRequest().authenticated()
                 );
 

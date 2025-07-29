@@ -1,39 +1,114 @@
 package com.tj.services.ums.service;
 
-import com.tj.services.ums.communicator.OTPCommunicator;
+import com.tj.services.ums.dto.SendOtpRequest;
+import com.tj.services.ums.dto.SendOtpResponse;
 import com.tj.services.ums.exception.InvalidOtpException;
 import com.tj.services.ums.model.AuthUser;
 import com.tj.services.ums.model.OtpToken;
-import com.tj.services.ums.repository.AuthUserRepository;
-import lombok.RequiredArgsConstructor;
+import com.tj.services.ums.model.OtpType;
+import com.tj.services.ums.repository.OtpTokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
-@RequiredArgsConstructor
 public class OtpService {
+    private static final Logger log = LoggerFactory.getLogger(OtpService.class);
 
-    private final OTPCommunicator otpCommunicator;
-    private final AuthUserRepository authUserRepository;
+    private final OtpTokenRepository otpTokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final SmsService smsService; // Correctly injected
+    private final EmailService emailService;
+    private final Random random = new SecureRandom();
 
-    public boolean validateOtp(String deviceId, String otp, AuthUser user) {
-        OtpToken token = otpCommunicator.validateOtp(deviceId, otp, 50);
-        if (token == null ||
-                !token.getMobile().equals(user.getMobile()) ||
-                !token.getEmail().equals(user.getEmail())) {
-            throw new InvalidOtpException("Invalid OTP for user " + user.getEmail());
+    @Value("${app.otp.length:6}")
+    private int otpLength;
+
+    @Value("${app.otp.expiry.minutes:5}")
+    private int otpExpiryMinutes;
+
+    @Value("${app.otp.max.attempts:3}")
+    private int maxAttempts;
+
+    @Autowired
+    public OtpService(OtpTokenRepository otpTokenRepository, PasswordEncoder passwordEncoder, SmsService smsService, EmailService emailService) {
+        this.otpTokenRepository = otpTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.smsService = smsService;
+        this.emailService = emailService;
+    }
+
+    @Transactional
+    public SendOtpResponse sendOtp(SendOtpRequest request) {
+        String otp = generateOtp();
+        log.info("[DEV] Generated OTP {} for device {} and mobile {}", otp, request.deviceId(), request.mobile());
+        String hashedOtp = passwordEncoder.encode(otp);
+        Instant expiry = Instant.now().plus(otpExpiryMinutes, ChronoUnit.MINUTES);
+
+        // Save OTP to the database
+        OtpToken token = new OtpToken();
+        token.setDeviceId(request.deviceId());
+        token.setMobile(request.mobile());
+        token.setEmail(request.email());
+        token.setOtpHash(hashedOtp);
+        token.setExpiresAt(expiry);
+        token.setOtpType(request.otpType());
+        otpTokenRepository.save(token);
+
+        // Send OTP via SMS, Email, or both
+        if (request.otpType() == OtpType.SMS || request.otpType() == OtpType.BOTH) {
+            smsService.sendOtp(request.mobile(), otp, otpExpiryMinutes);
         }
-        otpCommunicator.updateConsumedOtp(deviceId);
+        if (request.otpType() == OtpType.EMAIL || request.otpType() == OtpType.BOTH) {
+            emailService.sendOtp(request.email(), otp, otpExpiryMinutes);
+        }
+
+        return new SendOtpResponse("OTP sent successfully", request.deviceId(), expiry, request.otpType());
+    }
+
+    @Transactional
+    public boolean validateOtp(String deviceId, String otp, AuthUser user) {
+        Optional<OtpToken> tokenOpt = otpTokenRepository.findByDeviceIdAndConsumedFalseAndExpiresAtAfter(deviceId, Instant.now());
+    log.info("Token lookup for deviceId={}, userEmail={}, found={}", deviceId, user != null ? user.getEmail() : "null", tokenOpt.isPresent());
+
+        if (tokenOpt.isEmpty()) {
+            throw new InvalidOtpException("OTP not found, has expired, or has been consumed");
+        }
+
+        OtpToken token = tokenOpt.get();
+
+        if (token.getAttempts() >= maxAttempts) {
+            otpTokenRepository.delete(token);
+            throw new InvalidOtpException("Maximum OTP attempts exceeded. Please request a new OTP.");
+        }
+
+        log.info("Comparing OTP: provided='{}', storedHash='{}'", otp, token.getOtpHash());
+    boolean otpMatch = passwordEncoder.matches(otp, token.getOtpHash());
+    log.info("OTP match result: {}", otpMatch);
+    if (!otpMatch) {
+            token.setAttempts(token.getAttempts() + 1);
+            otpTokenRepository.save(token);
+            throw new InvalidOtpException("Invalid OTP provided");
+        }
+
+        token.setConsumed(true);
+        otpTokenRepository.save(token);
+
         return true;
     }
 
-    public void sendOtp(String deviceId, String mobile, String email) {
-        otpCommunicator.generateOtp(
-                OtpToken.builder()
-                        .requestId(deviceId)
-                        .type("SIGNIN_OTP")
-                        .mobile(mobile)
-                        .email(email)
-                        .build()
-        );
+    private String generateOtp() {
+        return String.format("%0" + otpLength + "d", random.nextInt((int) Math.pow(10, otpLength)));
     }
 }

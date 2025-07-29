@@ -1,6 +1,7 @@
 package com.tj.services.ums.service.impl;
 
 import com.tj.services.ums.communicator.impl.RealOtpCommunicator;
+import com.tj.services.ums.model.OtpType;
 import com.tj.services.ums.dto.*;
 import com.tj.services.ums.exception.AuthException;
 import com.tj.services.ums.exception.DeviceNotFoundException;
@@ -27,13 +28,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.security.auth.login.AccountLockedException;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
@@ -57,9 +58,47 @@ public class AuthServiceImpl implements AuthService {
     private final LoginAuditService loginAuditService;
     private final TokenBlacklistService tokenBlacklistService;
     private final UserDetailsService userDetailsService;
-    private final RealOtpCommunicator otpCommunicator;
     private final RoleRepository roleRepository;
     private final DeviceMetadataExtractor deviceMetadataExtractor;
+
+    @Override
+    public SendOtpResponse sendOtpToEmail(com.tj.services.ums.dto.EmailOtpRequest request) {
+        AuthUser user = authUserRepository.findByEmail(request.email())
+                .orElseThrow(() -> new AuthException("User not found with email: " + request.email()));
+        String fullDeviceId = request.deviceId(); // Already formatted during OTP generation
+        SendOtpRequest sendOtpRequest = new SendOtpRequest(fullDeviceId, null, user.getEmail(), OtpType.EMAIL);
+        return otpService.sendOtp(sendOtpRequest);
+    }
+
+    @Override
+    public OtpLoginResponse emailOtpLogin(com.tj.services.ums.dto.EmailOtpLoginRequest request, jakarta.servlet.http.HttpServletRequest httpRequest) {
+        log.info("Email OTP login attempt: email={}, deviceId={}", request.email(), request.deviceId());
+        try {
+            AuthUser user = authUserRepository.findByEmail(request.email())
+                    .orElseThrow(() -> new AuthException("User not found with email: " + request.email()));
+            String fullDeviceId = request.deviceId(); // Already formatted during OTP generation
+            log.debug("Full device ID: {} for user ID: {}", fullDeviceId, user.getId());
+
+            otpService.validateOtp(fullDeviceId, request.otp(), user);
+            log.info("OTP validated for device {} and user {}", fullDeviceId, user.getId());
+
+            DeviceMetadata metadata = deviceMetadataExtractor.extractDeviceMetadata(httpRequest);
+            deviceService.registerDevice(
+                    fullDeviceId,
+                    user,
+                    user.getSecurityConfiguration(),
+                    metadata
+            );
+            log.info("Device registered: {} for user {}", fullDeviceId, user.getId());
+
+            OtpLoginResponse response = createOtpLoginResponse(user);
+            log.info("Email OTP login successful for user {}", user.getId());
+            return response;
+        } catch (Exception e) {
+            log.error("Error during email OTP login: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
     
 
     // Regex patterns for password policy
@@ -67,12 +106,17 @@ public class AuthServiceImpl implements AuthService {
     private static final Pattern LOWERCASE_PATTERN = Pattern.compile(".*[a-z].*");
     private static final Pattern DIGIT_PATTERN = Pattern.compile(".*[0-9].*");
     private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile(".*[!@#$%^&*()_+\\-=\\[\\]{};':\\\\|,.<>/?].*");
+private static final int MAX_LOGIN_ATTEMPTS = 5;
+private static final long LOCK_TIME_DURATION = 15 * 60 * 1000; // 15 minutes
+private static final int MAX_OTP_ATTEMPTS = 3;
+private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
 
 
     @Override
     public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         final String remoteIp = httpRequest.getRemoteAddr();
         final String deviceId = httpRequest.getHeader(DEVICE_ID_HEADER);
+        log.debug("Login request received with deviceId: {}", deviceId);
 
         authenticateUser(request.email(), request.password());
         AuthUser user = authUserRepository.findByEmail(request.email()).orElseThrow(() -> new AuthException("User not found"));
@@ -92,21 +136,32 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest httpRequest) {
-        AuthUser user = findUserByMobile(request.mobile());
-        String fullDeviceId = formatDeviceId(request.deviceId(), user.getId());
+public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest httpRequest) {
+        log.info("OTP login attempt: mobile={}, deviceId={}", request.mobile(), request.deviceId());
+        try {
+            AuthUser user = findUserByMobile(request.mobile());
+            String fullDeviceId = request.deviceId(); // Already formatted during OTP generation
+            log.debug("Full device ID: {} for user ID: {}", fullDeviceId, user.getId());
 
-        otpService.validateOtp(fullDeviceId, request.otp(), user);
+            otpService.validateOtp(fullDeviceId, request.otp(), user);
+            log.info("OTP validated for device {} and user {}", fullDeviceId, user.getId());
 
-        DeviceMetadata metadata = deviceMetadataExtractor.extractDeviceMetadata(httpRequest);
-        deviceService.registerDevice(
-                fullDeviceId,
-                user,
-                user.getSecurityConfiguration(),
-                metadata
-        );
+            DeviceMetadata metadata = deviceMetadataExtractor.extractDeviceMetadata(httpRequest);
+            deviceService.registerDevice(
+                    fullDeviceId,
+                    user,
+                    user.getSecurityConfiguration(),
+                    metadata
+            );
+            log.info("Device registered: {} for user {}", fullDeviceId, user.getId());
 
-        return createOtpLoginResponse(user);
+            OtpLoginResponse response = createOtpLoginResponse(user);
+            log.info("OTP login successful for user {}", user.getId());
+            return response;
+        } catch (Exception e) {
+            log.error("Error during OTP login: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     
@@ -119,9 +174,9 @@ public class AuthServiceImpl implements AuthService {
 
         AuthUser user = createUserFromRequest(request, httpServletRequest);
         AuthUser savedUser = authUserRepository.save(user);
-        
 
         return new RegisterResponse(savedUser.getId(), "Registration successful");
+
     }
 
     // Helper methods
@@ -194,7 +249,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void initiateTwoFactorAuthentication(String fullDeviceId, AuthUser user) {
-        otpService.sendOtp(fullDeviceId, user.getMobile(), user.getEmail());
+        otpService.sendOtp(new SendOtpRequest(fullDeviceId, user.getMobile(), user.getEmail(), OtpType.SMS));
     }
 
     private void completeLoginProcess(String fullDeviceId, AuthUser user, HttpServletRequest request) {
@@ -206,7 +261,23 @@ public class AuthServiceImpl implements AuthService {
                 metadata
         );
     }
-
+private void checkLoginAttempts(AuthUser user) throws AccountLockedException {
+    int failedAttempts = user.getSecurityConfigValue("failedAttempts", Integer.class);
+    Long lockTime = user.getSecurityConfigValue("lockTime", Long.class);
+    
+    if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
+        if (lockTime == null || System.currentTimeMillis() > lockTime + LOCK_TIME_DURATION) {
+            // Reset after lock time expires
+            Map<String, Object> securityConfig = user.getSecurityConfiguration();
+            securityConfig.put("failedAttempts", 0);
+            securityConfig.put("lockTime", null);
+            user.setSecurityConfiguration(securityConfig);
+            authUserRepository.save(user);
+        } else {
+            throw new AccountLockedException("Account is locked. Please try again later or reset your password.");
+        }
+    }
+}
     private LoginResponse createLoginResponse(AuthUser user) {
         String token = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
@@ -303,7 +374,51 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(HttpServletRequest request) {
-        String token = jwtUtil.extractToken(request);
+    String token = jwtUtil.extractToken(request);
+    if (token != null) {
         tokenBlacklistService.blacklistToken(token);
+        String username = jwtUtil.extractUsername(token);
+        log.info("User logged out successfully. Token blacklisted for user: {}", username);
     }
 }
+
+    @Override
+    @Transactional
+    public boolean verifyEmail(String token) {
+        log.info("Verifying email with token: {}", token);
+        
+        try {
+            // Extract email from token
+            String email = jwtUtil.extractUsername(token);
+            if (email == null) {
+                log.warn("Invalid email verification token: {}", token);
+                return false;
+            }
+            
+            // Find the user by email
+            AuthUser user = authUserRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            
+            // Check if token is valid and not expired
+            if (jwtUtil.isTokenExpired(token)) {
+                log.warn("Expired email verification token for user: {}", email);
+                return false;
+            }
+            
+            // If user is already verified, return true
+            if (user.isEmailVerified()) {
+                log.info("Email already verified for user: {}", email);
+                return true;
+            }
+            
+            // Update user's email verification status
+            user.setEmailVerified(true);
+            authUserRepository.save(user);
+            log.info("Email verified successfully for user: {}", email);
+            
+            return true;
+        } catch (Exception e) {
+            log.error("Error verifying email with token: " + token, e);
+            return false;
+        }
+    }}
