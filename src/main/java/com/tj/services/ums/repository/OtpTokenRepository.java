@@ -13,6 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface OtpTokenRepository extends JpaRepository<OtpToken, Long> {
+    // Fetch the latest OTP for (email, deviceId) where not consumed and not expired
+    Optional<OtpToken> findFirstByEmailAndDeviceIdAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(String email, String deviceId, Instant currentTime);
+    Optional<OtpToken> findFirstByMobileAndDeviceIdAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(String mobile, String deviceId, Instant currentTime);
 
     Optional<OtpToken> findByDeviceIdAndConsumedFalseAndExpiresAtAfter(String deviceId, Instant currentTime);
 

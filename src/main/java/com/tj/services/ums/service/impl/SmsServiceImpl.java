@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class SmsServiceImpl implements SmsService {
@@ -57,6 +59,17 @@ public class SmsServiceImpl implements SmsService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(smsProviderUrl, entity, String.class);
+
+            logger.info("TextBelt raw response for {}: {}", mobile, response.getBody());
+
+            try {
+                JsonNode json = new ObjectMapper().readTree(response.getBody());
+                boolean success = json.has("success") && json.get("success").asBoolean();
+                String error = json.has("error") ? json.get("error").asText() : null;
+                logger.info("TextBelt parsed response for {}: success={}, error={}", mobile, success, error);
+            } catch (Exception parseEx) {
+                logger.warn("Failed to parse TextBelt response JSON for {}: {}", mobile, parseEx.getMessage());
+            }
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("Successfully sent SMS to {}", mobile);

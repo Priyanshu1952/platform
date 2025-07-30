@@ -175,8 +175,14 @@ public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest htt
         AuthUser user = createUserFromRequest(request, httpServletRequest);
         AuthUser savedUser = authUserRepository.save(user);
 
-        return new RegisterResponse(savedUser.getId(), "Registration successful");
+        // Extract device metadata from request
+        DeviceMetadata metadata = deviceMetadataExtractor.extractDeviceMetadata(httpServletRequest);
+        // Format deviceId: e.g., device_{userId}
+        String deviceId = String.format("device_%s", savedUser.getId());
+        // Register device
+        deviceService.registerDevice(deviceId, savedUser, savedUser.getSecurityConfiguration(), metadata);
 
+        return new RegisterResponse(savedUser.getId(), deviceId, "Registration successful");
     }
 
     // Helper methods

@@ -211,20 +211,19 @@ public class SystemSecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-    "/api/v1/auth/login",
-    "/api/v1/auth/register",
-    "/api/v1/auth/otp/login",
-    "/api/v1/auth/otp/email/request",
-    "/api/v1/auth/otp/email/login",
-    "/actuator/health"
-).permitAll()
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/otp/login",
+                                "/api/v1/auth/otp/email/request",
+                                "/api/v1/auth/otp/email/login",
+                                "/api/v1/auth/refresh",
+                                "/actuator/health"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 );
 
         return http.build();
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

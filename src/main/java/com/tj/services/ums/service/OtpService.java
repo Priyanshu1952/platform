@@ -79,8 +79,17 @@ public class OtpService {
 
     @Transactional
     public boolean validateOtp(String deviceId, String otp, AuthUser user) {
-        Optional<OtpToken> tokenOpt = otpTokenRepository.findByDeviceIdAndConsumedFalseAndExpiresAtAfter(deviceId, Instant.now());
-    log.info("Token lookup for deviceId={}, userEmail={}, found={}", deviceId, user != null ? user.getEmail() : "null", tokenOpt.isPresent());
+        Optional<OtpToken> tokenOpt;
+        if (user != null && user.getEmail() != null) {
+            tokenOpt = otpTokenRepository.findFirstByEmailAndDeviceIdAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(user.getEmail(), deviceId, Instant.now());
+            log.info("[OTP] Lookup by email+deviceId: email={}, deviceId={}, found={}", user.getEmail(), deviceId, tokenOpt.isPresent());
+        } else if (user != null && user.getMobile() != null) {
+            tokenOpt = otpTokenRepository.findFirstByMobileAndDeviceIdAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(user.getMobile(), deviceId, Instant.now());
+            log.info("[OTP] Lookup by mobile+deviceId: mobile={}, deviceId={}, found={}", user.getMobile(), deviceId, tokenOpt.isPresent());
+        } else {
+            tokenOpt = otpTokenRepository.findByDeviceIdAndConsumedFalseAndExpiresAtAfter(deviceId, Instant.now());
+            log.info("[OTP] Lookup fallback by deviceId: deviceId={}, found={}", deviceId, tokenOpt.isPresent());
+        }
 
         if (tokenOpt.isEmpty()) {
             throw new InvalidOtpException("OTP not found, has expired, or has been consumed");
