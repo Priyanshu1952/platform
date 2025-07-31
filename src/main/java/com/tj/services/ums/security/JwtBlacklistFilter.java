@@ -32,9 +32,18 @@ public class JwtBlacklistFilter extends OncePerRequestFilter {
 
 
         System.out.println("doInternal called in JwtBlacklistFilter");
-        String token = jwtUtil.extractToken(request);
-
-        if (token != null && tokenBlacklistService.isTokenBlacklisted(token)) {
+String token = jwtUtil.extractToken(request);
+System.out.println("[JwtBlacklistFilter] Extracted token: " + token);
+boolean isBlacklisted = false;
+try {
+    if (token != null) {
+        isBlacklisted = tokenBlacklistService.isTokenBlacklisted(token);
+        System.out.println("[JwtBlacklistFilter] isTokenBlacklisted: " + isBlacklisted);
+    }
+} catch (Exception e) {
+    System.out.println("[JwtBlacklistFilter] Exception during blacklist check: " + e.getMessage());
+}
+if (token != null && isBlacklisted) {
             response.setContentType("application/json");
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.getWriter().write(

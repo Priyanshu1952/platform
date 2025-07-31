@@ -1,16 +1,10 @@
 package com.tj.services.ums.service.impl;
 
-import com.tj.services.ums.service.TokenBlacklistService;
-import com.tj.services.ums.utils.JwtUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
+// COMMENTED OUT FOR DEVELOPMENT MODE
+// This implementation is disabled to prevent Redis connections in dev profile.
+// The in-memory implementation (InMemoryTokenBlacklistServiceImpl) should be used for dev.
+/*
 @Service
 @RequiredArgsConstructor
 public class RedisTokenBlacklistServiceImpl implements TokenBlacklistService {
@@ -44,4 +38,5 @@ public class RedisTokenBlacklistServiceImpl implements TokenBlacklistService {
         }
     }
 }
+*/
 

@@ -371,28 +371,37 @@ private void checkLoginAttempts(AuthUser user) throws AccountLockedException {
         Date expireAt = jwtUtil.getAccessTokenExpiry(); // Using the new method
 
         return new TokenRefreshResponse(
-                "Token refreshed successfully",
-                newAccessToken,
-                newRefreshToken,
-                expireAt
+            "Token refreshed successfully",
+            newAccessToken,
+            newRefreshToken,
+            expireAt
         );
     }
 
     @Override
     public void logout(HttpServletRequest request) {
-    String token = jwtUtil.extractToken(request);
-    if (token != null) {
-        tokenBlacklistService.blacklistToken(token);
-        String username = jwtUtil.extractUsername(token);
-        log.info("User logged out successfully. Token blacklisted for user: {}", username);
+        String token = null;
+        String username = null;
+        try {
+            token = jwtUtil.extractToken(request);
+            log.debug("[Logout] Extracted token: {}", token);
+            if (token != null) {
+                tokenBlacklistService.blacklistToken(token);
+                username = jwtUtil.extractUsername(token);
+                log.info("User logged out successfully. Token blacklisted for user: {}", username);
+            } else {
+                log.warn("[Logout] No token found in request");
+            }
+        } catch (Exception e) {
+            log.error("[Logout] Exception during logout. Token: {}, Username: {}. Message: {}", token, username, e.getMessage(), e);
+            throw e;
+        }
     }
-}
 
     @Override
     @Transactional
     public boolean verifyEmail(String token) {
         log.info("Verifying email with token: {}", token);
-        
         try {
             // Extract email from token
             String email = jwtUtil.extractUsername(token);
@@ -400,31 +409,27 @@ private void checkLoginAttempts(AuthUser user) throws AccountLockedException {
                 log.warn("Invalid email verification token: {}", token);
                 return false;
             }
-            
             // Find the user by email
             AuthUser user = authUserRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-            
             // Check if token is valid and not expired
             if (jwtUtil.isTokenExpired(token)) {
                 log.warn("Expired email verification token for user: {}", email);
                 return false;
             }
-            
             // If user is already verified, return true
             if (user.isEmailVerified()) {
                 log.info("Email already verified for user: {}", email);
                 return true;
             }
-            
             // Update user's email verification status
             user.setEmailVerified(true);
             authUserRepository.save(user);
             log.info("Email verified successfully for user: {}", email);
-            
             return true;
         } catch (Exception e) {
             log.error("Error verifying email with token: " + token, e);
             return false;
         }
-    }}
+    }
+}
