@@ -26,8 +26,13 @@ public class InMemoryTokenBlacklistServiceImpl implements TokenBlacklistService 
         try {
             String jti = jwtUtil.extractClaim(token, Claims::getId);
             Date expiration = jwtUtil.extractExpiration(token);
+            if (jti == null || expiration == null) {
+                System.out.println("[InMemoryTokenBlacklistServiceImpl] Cannot blacklist token: jti or expiration is null. Token: " + token);
+                return;
+            }
             blacklist.put(jti, expiration.getTime());
         } catch (JwtException e) {
+            System.out.println("[InMemoryTokenBlacklistServiceImpl] Invalid JWT token during blacklist: " + e.getMessage());
             throw new IllegalStateException("Invalid JWT token", e);
         }
     }
