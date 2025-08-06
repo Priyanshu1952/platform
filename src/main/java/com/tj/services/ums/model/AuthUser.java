@@ -18,7 +18,31 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class AuthUser implements UserDetails {
+
+    public String getFirstName() {
+        // Assuming 'name' is the full name, split to get the first name
+        if (name != null && !name.isEmpty()) {
+            return name.split(" ")[0];
+        }
+        return "";
+    }
+
+    public String getLastName() {
+        // Assuming 'name' is the full name, split to get the last name
+        if (name != null && !name.isEmpty()) {
+            String[] names = name.split(" ");
+            if (names.length > 1) {
+                return names[names.length - 1];
+            }
+        }
+        return "";
+    }
+
+    public Boolean isEmailVerified() {
+        return this.emailVerified;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,7 +63,16 @@ public class AuthUser implements UserDetails {
     @Builder.Default
     private boolean active = true;
 
-    private boolean emailVerified;
+    @Builder.Default
+    private Boolean emailVerified = false;
+
+    @Column(name = "pan_verified", nullable = true)
+    @Builder.Default
+    private Boolean panVerified = false;
+
+    @Column(name = "aadhaar_verified", nullable = true)
+    @Builder.Default
+    private Boolean aadhaarVerified = false;
 
     private String verificationToken;
 

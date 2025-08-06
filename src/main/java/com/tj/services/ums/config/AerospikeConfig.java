@@ -6,11 +6,13 @@ import com.aerospike.client.policy.ClientPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile("prod")
 public class AerospikeConfig {
 
-    @Value("${aerospike.hosts}")
+    @Value("${aerospike.hosts:localhost:3000}")
     private String hosts;
 
     
