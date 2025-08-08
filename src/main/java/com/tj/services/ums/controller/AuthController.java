@@ -112,6 +112,8 @@ public ResponseEntity<OtpLoginResponse> otpLogin(
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest request, HttpServletRequest httpRequest) {
+        log.info("Received registration request for email: {}", request.email());
+        
         // Check rate limit for registration
         String clientIp = httpRequest.getRemoteAddr();
         if (rateLimiter.isBlocked("register_" + clientIp)) {
@@ -120,7 +122,10 @@ public ResponseEntity<OtpLoginResponse> otpLogin(
                     .build();
         }
         
+        log.info("Calling authService.register for email: {}", request.email());
         RegisterResponse response = authService.register(request, httpRequest);
+        log.info("Registration successful for email: {}", request.email());
+        
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header("X-Account-Status", "pending_verification")
                 .body(response);

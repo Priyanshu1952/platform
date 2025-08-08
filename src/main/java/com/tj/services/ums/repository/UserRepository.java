@@ -90,10 +90,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByPanVerified(@Param("verified") Boolean verified);
     
     @Query("SELECT u FROM User u WHERE JSON_EXTRACT(u.additionalInfo, '$.customFields.aadhaarVerified') = :verified")
-    List<User> findByAadhaarVerified(@Param("verified") Boolean verified);
+    List<User> findByAadhaarVerified(@Param("verified") String verified);
     
     @Query("SELECT u FROM User u WHERE JSON_EXTRACT(u.additionalInfo, '$.customFields.emailVerified') = :verified")
-    List<User> findByEmailVerified(@Param("verified") Boolean verified);
+    List<User> findByEmailVerified(@Param("verified") String verified);
     
     // User relations queries
     @Query("SELECT ur FROM User u JOIN u.userRelations ur WHERE u.userId = :userId")
@@ -104,8 +104,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findActiveSalesUsers();
     
     // Rail-specific queries
-    @Query("SELECT u FROM User u WHERE u.railAdditionalInfo IS NOT NULL AND JSON_EXTRACT(u.railAdditionalInfo, '$.railActive') = true")
-    List<User> findActiveRailUsers();
+    // @Query("SELECT u FROM User u WHERE u.railAdditionalInfo IS NOT NULL AND JSON_EXTRACT(u.railAdditionalInfo, '$.railActive') = 'true'")
+    // List<User> findActiveRailUsers();
     
     // Count queries
     long countByRole(UserRole role);

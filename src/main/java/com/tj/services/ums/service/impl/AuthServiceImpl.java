@@ -30,16 +30,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.security.auth.login.AccountLockedException;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
+import com.tj.services.ums.model.AddressInfo;
+import com.tj.services.ums.model.UserRole;
 
 @Slf4j
 @Service
@@ -120,25 +125,89 @@ private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
         final String deviceId = httpRequest.getHeader(DEVICE_ID_HEADER);
         log.debug("Login request received with deviceId: {}", deviceId);
 
-        authenticateUser(request.email(), request.password());
-        AuthUser user = authUserRepository.findByEmail(request.email()).orElseThrow(() -> new AuthException("User not found"));
-        log.info("User authenticated with ID: {}", user.getId());
+        try {
+            // Authenticate the user
+            authenticateUser(request.email(), request.password());
+            
+            // Get the user from the database
+            AuthUser authUser = authUserRepository.findByEmail(request.email())
+                .orElseThrow(() -> new AuthException("User not found"));
+                
+            log.info("User authenticated with ID: {}", authUser.getId());
 
-        validateIpAccess(user, remoteIp);
+            // Validate IP access
+            validateIpAccess(authUser, remoteIp);
 
-        String fullDeviceId = formatDeviceId(deviceId, user.getId());
+            // Format the device ID
+            String fullDeviceId = formatDeviceId(deviceId, authUser.getId());
 
-        if (isNewDevice(fullDeviceId)) {
-            initiateTwoFactorAuthentication(fullDeviceId, user);
-            return LoginResponse.twoFactorRequired("SMS");
+            // Check if this is a new device (requires 2FA)
+            if (isNewDevice(fullDeviceId)) {
+                // Get or create user profile
+                User user = userRepository.findByEmail(authUser.getEmail())
+                    .orElseGet(() -> {
+                        // Create a basic user profile if it doesn't exist
+                        User newUser = new User();
+                        newUser.setEmail(authUser.getEmail());
+                        newUser.setName(authUser.getName());
+                        return userRepository.save(newUser);
+                    });
+                
+                // Initiate 2FA (this will send the OTP to the user's mobile)
+                initiateTwoFactorAuthentication(fullDeviceId, authUser);
+                
+                // Create an OTP validation request for the client
+                LoginResponse.OtpValidateRequest otpRequest = new LoginResponse.OtpValidateRequest();
+                otpRequest.setOtp(""); // OTP will be provided by the user
+                otpRequest.setDeliveryMethod("SMS");
+                
+                // Return 2FA required response
+                return LoginResponse.twoFactorRequired(user, otpRequest);
+            }
+
+            // Complete the login process for existing devices
+            completeLoginProcess(fullDeviceId, authUser, httpRequest);
+            
+            // Generate tokens for the user
+            String accessToken = jwtUtil.generateAccessToken(authUser);
+            String refreshToken = jwtUtil.generateRefreshToken(authUser);
+            
+            // Get or create user profile
+            User user = userRepository.findByEmail(authUser.getEmail())
+                .orElseGet(() -> {
+                    // Create a basic user profile if it doesn't exist
+                    User newUser = new User();
+                    newUser.setEmail(authUser.getEmail());
+                    newUser.setName(authUser.getName());
+                    return userRepository.save(newUser);
+                });
+                
+            // Return successful login response
+            return LoginResponse.success(user, accessToken, refreshToken);
+            
+        } catch (AuthException e) {
+            log.error("Authentication failed: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error during login: {}", e.getMessage(), e);
+            throw new AuthException("Login failed due to an unexpected error");
         }
+    }
 
-        completeLoginProcess(fullDeviceId, user, httpRequest);
-        return createLoginResponse(user);
+    /**
+     * Finds a user by their mobile number.
+     *
+     * @param mobile The mobile number to search for
+     * @return The AuthUser with the specified mobile number
+     * @throws AuthException If no user is found with the given mobile number
+     */
+    private AuthUser findUserByMobile(String mobile) {
+        return authUserRepository.findByMobile(mobile)
+                .orElseThrow(() -> new AuthException("User not found with mobile number: " + mobile));
     }
 
     @Override
-public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest httpRequest) {
+    public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest httpRequest) {
         log.info("OTP login attempt: mobile={}, deviceId={}", request.mobile(), request.deviceId());
         try {
             AuthUser user = findUserByMobile(request.mobile());
@@ -171,24 +240,38 @@ public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest htt
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest request, HttpServletRequest httpServletRequest) {
-        validateEmailUniqueness(request.email());
+        log.info("Starting registration for user: {}", request.email());
+        
+        // Validate password policy
         validatePasswordPolicy(request.password());
-
-        // Create and save AuthUser
+        
+        // Check if user already exists
+        validateEmailUniqueness(request.email());
+        
+        // Create AuthUser
         AuthUser authUser = createUserFromRequest(request, httpServletRequest);
+        log.info("Created AuthUser for: {}", request.email());
+        
+        // Create User profile
+        User userProfile = createUserProfileFromRequest(request, authUser.getId());
+        log.info("Created User profile for: {}", request.email());
+        
+        // Save AuthUser first
         AuthUser savedAuthUser = authUserRepository.save(authUser);
-
-        // Create and save User profile
-        User user = createUserProfileFromRequest(request, savedAuthUser.getId());
-        userRepository.save(user);
-
-        // Register device
-        DeviceMetadata metadata = deviceMetadataExtractor.extractDeviceMetadata(httpServletRequest);
-        String deviceId = String.format("device_%s", savedAuthUser.getId());
-        deviceService.registerDevice(deviceId, savedAuthUser, 
-            savedAuthUser.getSecurityConfiguration(), metadata);
-
-        return RegisterResponse.fromUser(savedAuthUser, deviceId);
+        log.info("Saved AuthUser for: {}", request.email());
+        
+        // Save User profile
+        User savedUserProfile = userRepository.save(userProfile);
+        log.info("Saved User profile for: {}", request.email());
+        
+        return new RegisterResponse(
+                savedAuthUser.getId(),
+                "device_" + savedAuthUser.getId(), // deviceId
+                savedAuthUser.getName(),
+                savedAuthUser.getEmail(),
+                savedAuthUser.getMobile(),
+                "User registered successfully"
+        );
     }
     
     /**
@@ -206,6 +289,25 @@ public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest htt
         user.setMobile(request.mobile());
         user.setCreatedOn(java.time.LocalDateTime.now());
         user.setStatus(UserStatus.ACTIVE);
+        
+        // Set role based on request
+        UserRole role = UserRole.valueOf(request.role());
+        log.info("Setting role for user: {} to: {}", request.email(), role);
+        user.setRole(role);
+        
+        // Set address information if available
+        if (request.address() != null) {
+            AddressInfo addressInfo = new AddressInfo();
+            addressInfo.setAddressLine1(request.address().getAddress());
+            addressInfo.setPincode(request.address().getPincode());
+            addressInfo.setState(request.address().getCityInfo().getState());
+            addressInfo.setCountry(request.address().getCityInfo().getCountry());
+            addressInfo.setAddressType("HOME"); // Default to HOME
+            addressInfo.setIsPrimary(true); // Set as primary address
+            addressInfo.setVerified(false); // Not verified initially
+            user.setAddressInfo(addressInfo);
+        }
+        
         // Set other default values as needed
         return user;
     }
@@ -243,7 +345,7 @@ public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest htt
             );
             auth.isAuthenticated();
         } catch (Exception e) {
-            throw new AuthException("Authentication failed", e);
+            throw new AuthException("Authorization unsuccessful.Either email/mobile or password is invalid", e);
         }
     }
 
@@ -283,62 +385,111 @@ public OtpLoginResponse otpLogin(OtpLoginRequest request, HttpServletRequest htt
         otpService.sendOtp(new SendOtpRequest(fullDeviceId, user.getMobile(), user.getEmail(), OtpType.SMS));
     }
 
-    private void completeLoginProcess(String fullDeviceId, AuthUser user, HttpServletRequest request) {
-        DeviceMetadata metadata = deviceMetadataExtractor.extractDeviceMetadata(request);
-        deviceService.registerDevice(
-                fullDeviceId,
-                user,
-                user.getSecurityConfiguration(),
-                metadata
-        );
-    }
-private void checkLoginAttempts(AuthUser user) throws AccountLockedException {
-    int failedAttempts = user.getSecurityConfigValue("failedAttempts", Integer.class);
-    Long lockTime = user.getSecurityConfigValue("lockTime", Long.class);
-    
-    if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
-        if (lockTime == null || System.currentTimeMillis() > lockTime + LOCK_TIME_DURATION) {
-            // Reset after lock time expires
-            Map<String, Object> securityConfig = user.getSecurityConfiguration();
-            securityConfig.put("failedAttempts", 0);
-            securityConfig.put("lockTime", null);
-            user.setSecurityConfiguration(securityConfig);
-            authUserRepository.save(user);
-        } else {
-            throw new AccountLockedException("Account is locked. Please try again later or reset your password.");
+    private void checkLoginAttempts(AuthUser user) throws AccountLockedException {
+        int failedAttempts = user.getSecurityConfigValue("failedAttempts", Integer.class);
+        Long lockTime = user.getSecurityConfigValue("lockTime", Long.class);
+        
+        if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
+            if (lockTime == null || System.currentTimeMillis() > lockTime + LOCK_TIME_DURATION) {
+                // Reset after lock time expires
+                Map<String, Object> securityConfig = user.getSecurityConfiguration();
+                securityConfig.put("failedAttempts", 0);
+                securityConfig.put("lockTime", null);
+                user.setSecurityConfiguration(securityConfig);
+                authUserRepository.save(user);
+            } else {
+                throw new AccountLockedException("Account is locked. Please try again later or reset your password.");
+            }
         }
     }
-}
-    private LoginResponse createLoginResponse(AuthUser user) {
-        String token = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        return new LoginResponse(
-                false, // twoFactorRequired
-                token,
-                refreshToken,
-                jwtUtil.getAccessTokenExpiryInstant(),
-                null, // otpDeliveryMethod
-                new LoginResponse.UserInfo(
-                        user.getId(),
-                        user.getEmail(),
-                        user.getName()
-                )
-        );
+
+    /**
+     * Completes the login process by generating tokens, registering the device, and returning a LoginResponse.
+     *
+     * @param fullDeviceId The full device ID
+     * @param authUser The authenticated user
+     * @param request The HTTP request
+     * @return LoginResponse containing tokens and user information
+     */
+    private LoginResponse completeLoginProcess(String fullDeviceId, AuthUser authUser, HttpServletRequest request) {
+        try {
+            // Generate tokens
+            String accessToken = jwtUtil.generateAccessToken(authUser);
+            String refreshToken = jwtUtil.generateRefreshToken(authUser);
+            
+            // Get or create user profile
+            User user = userRepository.findByEmail(authUser.getEmail())
+                .orElseGet(() -> {
+                    // Create a basic user profile if it doesn't exist
+                    User newUser = new User();
+                    newUser.setEmail(authUser.getEmail());
+                    newUser.setName(authUser.getName());
+                    return userRepository.save(newUser);
+                });
+            
+            // Extract device metadata and update device information
+            DeviceMetadata deviceMetadata = deviceMetadataExtractor.extractDeviceMetadata(request);
+            deviceService.registerDevice(
+                fullDeviceId,
+                authUser,
+                authUser.getSecurityConfiguration(),
+                deviceMetadata
+            );
+            
+            // Log successful login
+            loginAuditService.logSuccessfulLogin(
+                authUser.getId().toString(),
+                request.getRemoteAddr()
+            );
+            
+            // Create and send login alert
+            LoginAlertRequest alertRequest = new LoginAlertRequest(
+                authUser.getId().toString(),  // userId
+                user.getEmail(),              // email
+                user.getName(),               // username
+                request.getRemoteAddr(),      // ipAddress
+                deviceMetadataExtractor.extractDeviceMetadata(request).toString(),  // deviceInfo
+                LocalDateTime.now(),          // timestamp
+                "unknown",                    // location (temporarily hardcoded)
+                false                         // suspiciousActivity
+            );
+            loginAuditService.sendLoginAlert(alertRequest);
+            
+            // Return the login response with tokens
+            return LoginResponse.success(user, accessToken, refreshToken);
+            
+        } catch (Exception e) {
+            // Log login failure
+            loginAuditService.logFailedLoginAttempt(
+                authUser.getId().toString(),
+                request.getRemoteAddr(),
+                "Login failed: " + e.getMessage()
+            );
+            throw new AuthException("Login process failed: " + e.getMessage(), e);
+        }
     }
 
-    private AuthUser findUserByMobile(String mobile) {
-        return authUserRepository.findByMobile(mobile)
-                .orElseThrow(() -> new AuthException("Mobile number not registered"));
-    }
-
-    private OtpLoginResponse createOtpLoginResponse(AuthUser user) {
-        String token = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        return new OtpLoginResponse(
-                token,
-                refreshToken,
-                jwtUtil.getAccessTokenExpiryInstant()
-        );
+    private OtpLoginResponse createOtpLoginResponse(AuthUser authUser) {
+        String accessToken = jwtUtil.generateAccessToken(authUser);
+        String refreshToken = jwtUtil.generateRefreshToken(authUser);
+        
+        // Get the User object from the database
+        User user = userRepository.findByEmail(authUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("User profile not found for email: " + authUser.getEmail()));
+        
+        // Check if 2FA is required based on user's security configuration
+        Boolean require2fa = (Boolean) authUser.getSecurityConfiguration().get("require2fa");
+        Boolean twoDAuthRequired = require2fa != null ? require2fa : false;
+        
+        OtpLoginResponse response = new OtpLoginResponse();
+        response.setSuccess(true);
+        response.setMessage("OTP login successful");
+        response.setUser(user);
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(refreshToken);
+        response.setTwoDAuthRequired(twoDAuthRequired);
+        
+        return response;
     }
 
     private void validateEmailUniqueness(String email) {
@@ -354,18 +505,11 @@ private void checkLoginAttempts(AuthUser user) throws AccountLockedException {
         user.setMobile(request.mobile());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setEmailVerified(true);
-        Map<String, Object> defaultSecurityConfig = new HashMap<>();
-        defaultSecurityConfig.put("require2fa", false);
-        defaultSecurityConfig.put("allowedIps", Collections.emptyList());
-        defaultSecurityConfig.put("deviceLimit", 5);
-        defaultSecurityConfig.put("accountLocked", false);
-        defaultSecurityConfig.put("failedAttempts", 0);
-        defaultSecurityConfig.put("lastPasswordChange", System.currentTimeMillis());
-        user.setSecurityConfiguration(defaultSecurityConfig);
-
-        user.getSecurityConfiguration().put("allowedIps", List.of(httpServletRequest.getRemoteAddr(), "0:0:0:0:0:0:0:1"));
-        Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        
+        // Set role based on request
+        String roleName = "ROLE_" + request.role();
+        Role userRole = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Error: Role " + roleName + " is not found."));
 
         user.setRoles(Set.of(userRole));
         return user;

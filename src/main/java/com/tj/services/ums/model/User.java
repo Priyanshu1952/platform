@@ -126,10 +126,12 @@ public class User {
     private ContactPersonInfo contactPersonInfo;
     
     // JSON columns for complex objects (PostgreSQL JSONB support)
-    @Column(name = "additional_info", columnDefinition = "jsonb")
+    @Column(name = "additional_info", columnDefinition = "json")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.OTHER)
     private UserAdditionalInfo additionalInfo;
     
-    @Column(name = "rail_additional_info", columnDefinition = "jsonb")
+    @Column(name = "rail_additional_info", columnDefinition = "json")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.OTHER)
     private RailAdditionalInfo railAdditionalInfo;
     
     @Column(name = "rail_onboarding_start_date")
@@ -139,7 +141,8 @@ public class User {
     private String parentUserId;
     
     @Deprecated
-    @Column(name = "parent_conf", columnDefinition = "jsonb")
+    @Column(name = "parent_conf", columnDefinition = "json")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.OTHER)
     private UserConfiguration parentConf;
     
     // Self-reference for parent user
@@ -151,7 +154,8 @@ public class User {
     @Column(name = "can_be_emulated")
     private Boolean canBeEmulated;
     
-    @Column(name = "user_conf", columnDefinition = "jsonb")
+    @Column(name = "user_conf", columnDefinition = "json")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.OTHER)
     private UserConfiguration userConf;
     
     @Embedded

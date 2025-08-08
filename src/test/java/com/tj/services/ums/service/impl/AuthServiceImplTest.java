@@ -1,6 +1,6 @@
 package com.tj.services.ums.service.impl;
 
-import com.tj.services.ums.dto.DeviceMetadata;
+import com.tj.services.ums.dto.AddressRequest;
 import com.tj.services.ums.dto.RegisterRequest;
 import com.tj.services.ums.dto.RegisterResponse;
 import com.tj.services.ums.exception.AuthException;
@@ -11,22 +11,17 @@ import com.tj.services.ums.model.UserStatus;
 import com.tj.services.ums.repository.AuthUserRepository;
 import com.tj.services.ums.repository.RoleRepository;
 import com.tj.services.ums.repository.UserRepository;
-import com.tj.services.ums.service.DeviceService;
-import com.tj.services.ums.service.GeoLocationService;
-import com.tj.services.ums.service.LoginAuditService;
-import com.tj.services.ums.service.OtpService;
-import com.tj.services.ums.service.TokenBlacklistService;
+import com.tj.services.ums.dto.DeviceMetadata;
 import com.tj.services.ums.helper.DeviceMetadataExtractor;
+import com.tj.services.ums.service.*;
 import com.tj.services.ums.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -35,11 +30,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -91,11 +89,13 @@ class AuthServiceImplTest {
     @InjectMocks
     private AuthServiceImpl authService;
 
-    @Captor
+    @Mock
     private ArgumentCaptor<AuthUser> authUserCaptor;
-    @Captor
+
+    @Mock
     private ArgumentCaptor<User> userCaptor;
-    @Captor
+
+    @Mock
     private ArgumentCaptor<String> deviceIdCaptor;
 
     private AuthUser testAuthUser;
@@ -106,12 +106,11 @@ class AuthServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Initialize test data
         testAuthUser = new AuthUser();
         testAuthUser.setId(UUID.randomUUID());
         testAuthUser.setEmail("test@example.com");
         testAuthUser.setPassword("encodedPassword");
-        
+
         testUser = new User();
         testUser.setId(1L);
         testUser.setName("Test User");
@@ -119,11 +118,17 @@ class AuthServiceImplTest {
         testUser.setMobile("+1234567890");
         testUser.setStatus(UserStatus.ACTIVE);
         
+        // Create address request for testing
+        AddressRequest.CityInfoRequest cityInfo = new AddressRequest.CityInfoRequest("Test City", "Test Country");
+        AddressRequest addressRequest = new AddressRequest("Test Address", cityInfo);
+        
         registerRequest = new RegisterRequest(
             "Test User",
             "test@example.com",
             "ValidPass123!",
-            "+1234567890"
+            "+1234567890",
+            addressRequest,
+            "USER"
         );
         
         httpRequest = mock(HttpServletRequest.class);
@@ -207,19 +212,23 @@ class AuthServiceImplTest {
     @Test
     void register_InvalidPassword_ThrowsException() {
         // Arrange - Create a request with an invalid password (too short)
+        AddressRequest.CityInfoRequest cityInfo = new AddressRequest.CityInfoRequest("Test City", "Test Country");
+        AddressRequest addressRequest = new AddressRequest("Test Address", cityInfo);
+        
         RegisterRequest invalidPasswordRequest = new RegisterRequest(
                 "Test User",
                 "test@example.com",
                 "weak", // Invalid password - too short
-                "+1234567890"
+                "+1234567890",
+                addressRequest,
+                "USER"
         );
 
         // Act & Assert
         AuthException exception = assertThrows(AuthException.class, 
             () -> authService.register(invalidPasswordRequest, httpRequest));
             
-        // Verify exception message indicates password policy violation
-        assertTrue(exception.getMessage().contains("Password must be"), 
-            "Error message should indicate password policy violation");
+        // Verify exception message
+        assertEquals("Password must be between 8 and 20 characters", exception.getMessage());
     }
 }

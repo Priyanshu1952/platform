@@ -1,5 +1,6 @@
 package com.tj.services.ums.exception;
 
+import com.tj.services.ums.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,23 +11,30 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice(basePackages = "com.tj.services.ums.controller")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthException.class)
-    public ResponseEntity<ErrorResponse> handleAuthException(AuthException ex, WebRequest request) {
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(ex.getHttpStatus().value())
-                .error(ex.getHttpStatus().getReasonPhrase())
-                .errorType(ex.getErrorType().name())
-                .message(ex.getMessage())
-                .path(request.getDescription(false).replace("uri=", ""))
+    public ResponseEntity<ApiResponse> handleAuthException(AuthException ex, WebRequest request) {
+        ApiResponse.Status status = ApiResponse.Status.builder()
+                .success(false)
+                .httpStatus(ex.getHttpStatus().value())
                 .build();
 
-        return new ResponseEntity<>(errorResponse, ex.getHttpStatus());
+        ApiResponse.ApiError error = ApiResponse.ApiError.builder()
+                .errCode("801") // Standard error code for authentication failures
+                .message(ex.getMessage())
+                .build();
+
+        ApiResponse response = ApiResponse.builder()
+                .status(status)
+                .errors(List.of(error))
+                .build();
+
+        return new ResponseEntity<>(response, ex.getHttpStatus());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

@@ -48,8 +48,8 @@ public class AuditLogEntity {
     @Column(length = 100)
     private String location;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "json")
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.OTHER)
     private Map<String, Object> metadata;
 
     @Version

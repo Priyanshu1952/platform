@@ -1,53 +1,76 @@
 package com.tj.services.ums.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tj.services.ums.model.AuthUser;
+import com.tj.services.ums.model.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.UUID;
-
+/**
+ * Response object for sign-in operations.
+ * Matches the structure of the monolith's SignInResponse for compatibility.
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record LoginResponse(
-        boolean twoFactorRequired,  // Indicates if 2FA is needed
+public class LoginResponse extends BaseResponse {
+    
+    private User user;
+    private String accessToken;
+    private String refreshToken;
 
-        String token,              // JWT access token (null if 2FA required)
+    @JsonProperty("2dreq")
+    private Boolean twoFactorRequired;
 
-        String refreshToken,       // JWT refresh token (null if 2FA required)
+    // Excluded from JSON serialization
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private OtpValidateRequest otpValidateRequest;
 
-        Instant expiresAt,         // Token expiration time (null if 2FA required)
-
-        String otpDeliveryMethod,  // e.g., "SMS", "EMAIL" (present if 2FA required)
-
-        UserInfo userInfo          // Basic user information (optional)
-) {
-    // Factory method for successful login (with tokens)
-    public static LoginResponse success(String token, String refreshToken, Instant expiresAt, AuthUser user) {
-        return new LoginResponse(
-                false,
-                token,
-                refreshToken,
-                expiresAt,
-                null,
-                new UserInfo(user.getId(), user.getEmail(), user.getName())
-        );
+    /**
+     * Factory method for successful login with tokens
+     */
+    public static LoginResponse success(User user, String accessToken, String refreshToken) {
+        LoginResponse response = LoginResponse.builder()
+                .user(user)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .twoFactorRequired(false)
+                .build();
+        response.setSuccess(true);
+        response.setMessage("Login successful");
+        return response;
     }
 
-    // Factory method for 2FA required case
-    public static LoginResponse twoFactorRequired(String otpDeliveryMethod) {
-        return new LoginResponse(
-                true,
-                null,
-                null,
-                null,
-                otpDeliveryMethod,
-                null
-        );
+    /**
+     * Factory method for 2FA required case
+     */
+    public static LoginResponse twoFactorRequired(User user, OtpValidateRequest otpValidateRequest) {
+        LoginResponse response = LoginResponse.builder()
+                .user(user)
+                .twoFactorRequired(true)
+                .otpValidateRequest(otpValidateRequest)
+                .build();
+        response.setSuccess(true);
+        response.setMessage("Two-factor authentication required");
+        return response;
     }
 
-    // Basic user information DTO
-    public record UserInfo(
-            UUID id,
-            String email,
-            String name
-    ) {}
+    /**
+     * Nested class for OTP validation request
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OtpValidateRequest {
+        private String otp;
+        private String deliveryMethod; // e.g., "SMS", "EMAIL"
+    }
 }

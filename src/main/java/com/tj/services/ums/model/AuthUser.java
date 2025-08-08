@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "auth_users")
@@ -85,11 +87,40 @@ public class AuthUser implements UserDetails {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
-    // Security Configuration (JSON storage)
-    @Column(columnDefinition = "jsonb")
-    @JdbcTypeCode(SqlTypes.JSON)
+    // Security Configuration - Individual columns instead of JSON
+    @Column(name = "require_2fa")
     @Builder.Default
-    private Map<String, Object> securityConfiguration = new HashMap<>();
+    private Boolean require2fa = false;
+    
+    @Column(name = "device_limit")
+    @Builder.Default
+    private Integer deviceLimit = 5;
+    
+    @Column(name = "account_locked")
+    @Builder.Default
+    private Boolean accountLocked = false;
+    
+    @Column(name = "failed_attempts")
+    @Builder.Default
+    private Integer failedAttempts = 0;
+    
+    @Column(name = "lock_time")
+    private Long lockTime;
+    
+    @Column(name = "last_password_change")
+    @Builder.Default
+    private Long lastPasswordChange = System.currentTimeMillis();
+    
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+    
+    @Column(name = "password_reset_token_expiry")
+    private Long passwordResetTokenExpiry;
+    
+    // Store allowed IPs as comma-separated string
+    @Column(name = "allowed_ips", columnDefinition = "TEXT")
+    @Builder.Default
+    private String allowedIps = "";
 
     // ------------ UserDetails Interface Methods ------------ //
     @Override
@@ -111,7 +142,7 @@ public class AuthUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !this.getSecurityConfigValue("accountLocked", Boolean.class);
+        return !this.accountLocked;
     }
 
     @Override
@@ -124,38 +155,80 @@ public class AuthUser implements UserDetails {
         return this.active && this.emailVerified;
     }
 
+    // Helper methods for security configuration
     public Map<String, Object> getSecurityConfiguration() {
-        if (this.securityConfiguration == null) {
-            this.securityConfiguration = getDefaultSecurityConfig();
-        }
-        return this.securityConfiguration;
+        Map<String, Object> config = new HashMap<>();
+        config.put("require2fa", this.require2fa);
+        config.put("deviceLimit", this.deviceLimit);
+        config.put("accountLocked", this.accountLocked);
+        config.put("failedAttempts", this.failedAttempts);
+        config.put("lockTime", this.lockTime);
+        config.put("lastPasswordChange", this.lastPasswordChange);
+        config.put("passwordResetToken", this.passwordResetToken);
+        config.put("passwordResetTokenExpiry", this.passwordResetTokenExpiry);
+        config.put("allowedIps", parseAllowedIps());
+        return config;
     }
 
-    private Map<String, Object> getDefaultSecurityConfig() {
-        return Map.of(
-                "require2fa", false,
-                "allowedIps", Collections.emptyList(),
-                "deviceLimit", 5,
-                "accountLocked", false,
-                "failedAttempts", 0,
-                "lastPasswordChange", System.currentTimeMillis()
-        );
+    public void setSecurityConfiguration(Map<String, Object> config) {
+        if (config != null) {
+            this.require2fa = (Boolean) config.getOrDefault("require2fa", false);
+            this.deviceLimit = (Integer) config.getOrDefault("deviceLimit", 5);
+            this.accountLocked = (Boolean) config.getOrDefault("accountLocked", false);
+            this.failedAttempts = (Integer) config.getOrDefault("failedAttempts", 0);
+            this.lockTime = (Long) config.getOrDefault("lockTime", null);
+            this.lastPasswordChange = (Long) config.getOrDefault("lastPasswordChange", System.currentTimeMillis());
+            this.passwordResetToken = (String) config.getOrDefault("passwordResetToken", null);
+            this.passwordResetTokenExpiry = (Long) config.getOrDefault("passwordResetTokenExpiry", null);
+            this.allowedIps = serializeAllowedIps((List<String>) config.getOrDefault("allowedIps", new ArrayList<>()));
+        }
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getSecurityConfigValue(String key, Class<T> type) {
-        Object value = getSecurityConfiguration().get(key);
-        try {
-            return type.cast(value);
-        } catch (ClassCastException e) {
-            return (T) getDefaultSecurityConfig().get(key);
+        switch (key) {
+            case "require2fa":
+                return (T) this.require2fa;
+            case "deviceLimit":
+                return (T) this.deviceLimit;
+            case "accountLocked":
+                return (T) this.accountLocked;
+            case "failedAttempts":
+                return (T) this.failedAttempts;
+            case "lockTime":
+                return (T) this.lockTime;
+            case "lastPasswordChange":
+                return (T) this.lastPasswordChange;
+            case "passwordResetToken":
+                return (T) this.passwordResetToken;
+            case "passwordResetTokenExpiry":
+                return (T) this.passwordResetTokenExpiry;
+            case "allowedIps":
+                return (T) parseAllowedIps();
+            default:
+                return null;
         }
     }
 
     // Helper method for common security checks
     public boolean isIpAllowed(String ipAddress) {
-        return this.getSecurityConfigValue("allowedIps", List.class)
-                .contains(ipAddress);
+        List<String> allowedIpList = parseAllowedIps();
+        return allowedIpList.contains(ipAddress);
+    }
+
+    // Helper methods for IP list serialization/deserialization
+    private List<String> parseAllowedIps() {
+        if (this.allowedIps == null || this.allowedIps.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(this.allowedIps.split(","));
+    }
+
+    private String serializeAllowedIps(List<String> ipList) {
+        if (ipList == null || ipList.isEmpty()) {
+            return "";
+        }
+        return String.join(",", ipList);
     }
 
 
