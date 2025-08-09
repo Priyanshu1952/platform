@@ -9,7 +9,7 @@ class RegisterRequestTest {
     void testValidRegisterRequest() {
         // Create valid address components
         AddressRequest.CityInfoRequest cityInfo = new AddressRequest.CityInfoRequest("Delhi", "India");
-        AddressRequest address = new AddressRequest("Delhi", cityInfo);
+        AddressRequest address = new AddressRequest("110006", "Delhi", cityInfo);
         
         // Create valid register request
         RegisterRequest request = new RegisterRequest(
@@ -30,15 +30,16 @@ class RegisterRequestTest {
         
         // Verify address structure
         assertNotNull(request.address());
+        assertEquals("110006", request.address().getPincode());
         assertEquals("Delhi", request.address().getAddress());
-        assertEquals("Delhi", request.address().getCityInfo().getName());
+        assertEquals("Delhi", request.address().getCityInfo().getState());
         assertEquals("India", request.address().getCityInfo().getCountry());
     }
     
     @Test
     void testRoleValidation() {
         AddressRequest.CityInfoRequest cityInfo = new AddressRequest.CityInfoRequest("Delhi", "India");
-        AddressRequest address = new AddressRequest("Delhi", cityInfo);
+        AddressRequest address = new AddressRequest("110006", "Delhi", cityInfo);
         
         // Test valid roles
         assertDoesNotThrow(() -> new RegisterRequest("Test", "test@test.com", "password123!", "1234567890", address, "USER"));

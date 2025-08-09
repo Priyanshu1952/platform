@@ -120,7 +120,7 @@ class AuthServiceImplTest {
         
         // Create address request for testing
         AddressRequest.CityInfoRequest cityInfo = new AddressRequest.CityInfoRequest("Test City", "Test Country");
-        AddressRequest addressRequest = new AddressRequest("Test Address", cityInfo);
+        AddressRequest addressRequest = new AddressRequest("110001", "Test Address", cityInfo);
         
         registerRequest = new RegisterRequest(
             "Test User",
@@ -213,7 +213,7 @@ class AuthServiceImplTest {
     void register_InvalidPassword_ThrowsException() {
         // Arrange - Create a request with an invalid password (too short)
         AddressRequest.CityInfoRequest cityInfo = new AddressRequest.CityInfoRequest("Test City", "Test Country");
-        AddressRequest addressRequest = new AddressRequest("Test Address", cityInfo);
+        AddressRequest addressRequest = new AddressRequest("110001", "Test Address", cityInfo);
         
         RegisterRequest invalidPasswordRequest = new RegisterRequest(
                 "Test User",
