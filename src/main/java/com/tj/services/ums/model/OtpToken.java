@@ -31,7 +31,7 @@ public class OtpToken {
     @Column(nullable = false, unique = true)
     private String deviceId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String mobile;
 
     @Column(nullable = false)

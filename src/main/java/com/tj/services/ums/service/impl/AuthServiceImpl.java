@@ -73,6 +73,8 @@ public class AuthServiceImpl implements AuthService {
         AuthUser user = authUserRepository.findByEmail(request.email())
                 .orElseThrow(() -> new AuthException("User not found with email: " + request.email()));
         String fullDeviceId = request.deviceId(); // Already formatted during OTP generation
+        // For email OTP requests, mobile number is not required, so we can pass null
+        // The OtpToken entity now allows null mobile field
         SendOtpRequest sendOtpRequest = new SendOtpRequest(fullDeviceId, null, user.getEmail(), OtpType.EMAIL);
         return otpService.sendOtp(sendOtpRequest);
     }

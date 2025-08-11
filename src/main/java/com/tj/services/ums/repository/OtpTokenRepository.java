@@ -33,4 +33,9 @@ public interface OtpTokenRepository extends JpaRepository<OtpToken, Long> {
     @Modifying
     @Query("UPDATE OtpToken t SET t.attempts = t.attempts + 1 WHERE t.deviceId = :deviceId")
     void incrementAttempts(@Param("deviceId") String deviceId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM OtpToken t WHERE t.deviceId = :deviceId")
+    void deleteByDeviceId(@Param("deviceId") String deviceId);
 }

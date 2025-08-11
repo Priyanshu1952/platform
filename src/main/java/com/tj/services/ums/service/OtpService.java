@@ -56,6 +56,9 @@ public class OtpService {
         String hashedOtp = passwordEncoder.encode(otp);
         Instant expiry = Instant.now().plus(otpExpiryMinutes, ChronoUnit.MINUTES);
 
+        // Delete any existing OTP tokens for the same device
+        otpTokenRepository.deleteByDeviceId(request.deviceId());
+
         // Save OTP to the database
         OtpToken token = new OtpToken();
         token.setDeviceId(request.deviceId());
