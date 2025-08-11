@@ -43,6 +43,7 @@ public class User {
     // Self-reference for emulation functionality
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emulate_user_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User emulateUser;
     
     @Column(name = "user_id", unique = true)
@@ -149,6 +150,7 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_user_ref_id")
     @JsonProperty("pu")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User parentUser;
     
     @Column(name = "can_be_emulated")
@@ -190,6 +192,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id1"),
         inverseJoinColumns = @JoinColumn(name = "user_id2")
     )
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Set<User> userRelations;
     
     @Column(name = "total_balance")

@@ -1,5 +1,6 @@
 package com.tj.services.ums.controller;
 
+import com.tj.services.ums.security.annotation.CustomRequestProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,7 @@ public class SsoSecuredController {
      */
     @GetMapping("/secure/profile")
     @PreAuthorize("isAuthenticated()")
+    @CustomRequestProcessor(areaRole = {"PROFILE_READ"})
     public ResponseEntity<Map<String, Object>> getUserProfile(Authentication authentication) {
         log.info("Accessing user profile for: {}", authentication.getName());
         
@@ -110,6 +112,7 @@ public class SsoSecuredController {
      */
     @GetMapping("/admin/users")
     @PreAuthorize("hasRole('ADMIN')")
+    @CustomRequestProcessor(areaRole = {"CONFIG_EDIT"})
     public ResponseEntity<Map<String, Object>> getAdminUsers(Authentication authentication) {
         log.info("Accessing admin users for: {}", authentication.getName());
         
@@ -191,6 +194,7 @@ public class SsoSecuredController {
      */
     @GetMapping("/secure/financial-reports")
     @PreAuthorize("@ssoSecurityService.hasBusinessPermission(authentication.name, 'view_financial_reports')")
+    @CustomRequestProcessor(areaRole = {"REPORTS_VIEW"})
     public ResponseEntity<Map<String, Object>> getFinancialReports(Authentication authentication) {
         log.info("Accessing financial reports for: {}", authentication.getName());
         
