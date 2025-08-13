@@ -1,93 +1,74 @@
 package com.tj.services.ums.service;
 
+import com.tj.services.ums.dto.UserUpdateRequest;
+import com.tj.services.ums.model.AuthUser;
 import com.tj.services.ums.model.User;
-import com.tj.services.ums.model.UserRole;
-import com.tj.services.ums.model.UserStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+/**
+ * Comprehensive service for user management operations
+ * Handles both AuthUser (authentication) and User (business logic) models
+ */
 public interface UserService {
     
-    // Basic CRUD operations
-    User createUser(User user);
-    User updateUser(User user);
-    Optional<User> getUserById(Long id);
-    Optional<User> getUserByUserId(String userId);
-    Optional<User> getUserByEmail(String email);
-    Optional<User> getUserByMobile(String mobile);
-    void deleteUser(Long id);
+    // AuthUser operations
+    AuthUser getAuthUserById(UUID userId);
+    Optional<AuthUser> getAuthUserByEmail(String email);
+    AuthUser updateAuthUser(UUID userId, UserUpdateRequest request);
+    AuthUser updateAuthUserSecurity(UUID userId, UserUpdateRequest request);
     
-    // Search and filter operations
-    List<User> getAllUsers();
-    Page<User> getUsersWithFilters(String name, String email, String mobile, 
-                                  UserRole role, UserStatus status, 
-                                  String partnerId, String parentUserId, 
-                                  Pageable pageable);
-    List<User> searchUsersByName(String name);
-    List<User> getUsersByRole(UserRole role);
-    List<User> getUsersByStatus(UserStatus status);
-    List<User> getUsersByPartnerId(String partnerId);
+    // User operations (business logic)
+    User getUserById(Long userId);
+    User getUserByUserId(String userId);
+    User updateUser(Long userId, UserUpdateRequest request);
+    User updateUserByUserId(String userId, UserUpdateRequest request);
     
-    // User relationships
-    List<User> getChildUsers(String parentUserId);
+    // Combined operations
+    UserUpdateRequest getUserUpdateRequest(UUID authUserId);
+    UserUpdateRequest getUserUpdateRequestByUserId(String userId);
+    
+    // User relationship operations
+    List<String> getAllowedUserIds(String userId);
     List<User> getUserRelations(String userId);
-    void addUserRelation(String userId1, String userId2);
-    void removeUserRelation(String userId1, String userId2);
     
-    // Verification operations
-    void updatePanVerificationStatus(String userId, boolean verified);
-    void updateAadhaarVerificationStatus(String userId, boolean verified);
-    void updateEmailVerificationStatus(String userId, boolean verified);
-    List<User> getPanVerifiedUsers();
-    List<User> getAadhaarVerifiedUsers();
-    List<User> getEmailVerifiedUsers();
+    // Search and query operations
+    Optional<User> getUserByUserId(String userId, boolean includeRelations);
+    List<User> searchUsers(String query);
+    List<User> getUsersByRole(String role);
+    List<User> getUsersByStatus(String status);
     
-    // Balance operations
-    void updateUserBalance(String userId, Double balance);
-    void updateUserWalletBalance(String userId, Double walletBalance);
-    List<User> getUsersWithMinimumBalance(Double minBalance);
-    
-    // Status operations
-    void updateUserStatus(String userId, UserStatus status);
-    void activateUser(String userId);
-    void deactivateUser(String userId);
-    void suspendUser(String userId);
-    
-    // Emulation operations
-    void enableEmulation(String userId);
-    void disableEmulation(String userId);
-    List<User> getEmulableUsers();
-    
-    // Rail operations
-    List<User> getActiveRailUsers();
-    void updateRailStatus(String userId, boolean active);
-    
-    // Sales operations
-    List<User> getActiveSalesUsers();
-    
-    // Statistics and counts
-    long getTotalUserCount();
-    long getUserCountByRole(UserRole role);
-    long getUserCountByStatus(UserStatus status);
-    long getNewUsersCount(LocalDateTime since);
+    // Bulk operations
+    List<User> updateMultipleUsers(List<Long> userIds, UserUpdateRequest request);
+    void deactivateUsers(List<Long> userIds);
+    void activateUsers(List<Long> userIds);
     
     // Validation operations
-    boolean isEmailAvailable(String email);
-    boolean isMobileAvailable(String mobile);
+    boolean isEmailAvailable(String email, UUID excludeUserId);
+    boolean isMobileAvailable(String mobile, UUID excludeUserId);
     boolean isUserIdAvailable(String userId);
     
+    // Security operations
+    void lockUserAccount(UUID userId);
+    void unlockUserAccount(UUID userId);
+    void resetFailedAttempts(UUID userId);
+    void updateLastPasswordChange(UUID userId);
+    
     // Profile operations
-    User updateUserProfile(String userId, com.tj.services.ums.model.UserProfile profile);
-    User updateUserAdditionalInfo(String userId, com.tj.services.ums.model.UserAdditionalInfo additionalInfo);
+    void updateUserProfile(UUID userId, UserUpdateRequest request);
+    void updateUserAddress(UUID userId, UserUpdateRequest request);
+    void updateUserContactInfo(UUID userId, UserUpdateRequest request);
+    void updateUserKYCInfo(UUID userId, UserUpdateRequest request);
     
-    // Configuration operations
-    User updateUserConfiguration(String userId, com.tj.services.ums.model.UserConfiguration configuration);
+    // Verification operations
+    void markEmailVerified(UUID userId);
+    void markPanVerified(UUID userId);
+    void markAadhaarVerified(UUID userId);
     
-    // Migration helper methods
-    User migrateFromAuthUser(com.tj.services.ums.model.AuthUser authUser);
-    void syncUserData(String userId);
+    // Financial operations
+    void updateUserBalance(Long userId, Double newBalance);
+    void updateUserWalletBalance(Long userId, Double newWalletBalance);
+    void updateUserTotalBalance(Long userId, Double newTotalBalance);
 }

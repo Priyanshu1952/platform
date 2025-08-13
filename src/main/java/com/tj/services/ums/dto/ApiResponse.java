@@ -14,6 +14,8 @@ import java.util.List;
 public class ApiResponse {
     private Status status;
     private List<ApiError> errors;
+    private Object data;
+    private String message;
     
     @Data
     @Builder

@@ -25,4 +25,7 @@ public interface DeviceInfoRepository extends JpaRepository<DeviceInfo, Long> {
 
     @Query("SELECT COUNT(d) FROM DeviceInfo d WHERE d.user.id = :userId AND d.deviceType = :deviceType")
     int countByUserAndDeviceType(@Param("userId") String userId, @Param("deviceType") String deviceType);
+
+    @Query("SELECT d FROM DeviceInfo d WHERE d.user.id = :userId ORDER BY d.lastLoginTime DESC")
+    List<DeviceInfo> findByUserId(@Param("userId") String userId);
 }

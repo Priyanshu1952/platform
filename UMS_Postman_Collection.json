@@ -1,0 +1,1010 @@
+{
+  "info": {
+    "name": "UMS (User Management System) API",
+    "description": "Complete API collection for User Management System with authentication, KYC, document management, and SSO features",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8085",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "1.1 User Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"mobile\": \"+919876543210\",\n  \"address\": {\n    \"pincode\": \"400001\",\n    \"address\": \"123 Main Street, Apartment 4B\",\n    \"cityInfo\": {\n      \"state\": \"Maharashtra\",\n      \"country\": \"India\"\n    }\n  },\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('userId', response.userId);",
+                  "    console.log('User registered with ID:', response.userId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.2 Standard Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123!\",\n  \"deviceId\": \"device-12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.environment.set('refreshToken', response.refreshToken);",
+                  "    pm.environment.set('userId', response.user.id);",
+                  "    console.log('Login successful, tokens captured');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.3 Email OTP Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/email/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "otp", "email", "request"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.4 Email OTP Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/email/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "otp", "email", "login"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.environment.set('refreshToken', response.refreshToken);",
+                  "    pm.environment.set('userId', response.user.id);",
+                  "    console.log('Email OTP login successful');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.5 Mobile OTP Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobile\": \"+919876543210\",\n  \"otp\": \"123456\",\n  \"deviceId\": \"device-12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "otp", "login"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.environment.set('refreshToken', response.refreshToken);",
+                  "    pm.environment.set('userId', response.user.id);",
+                  "    console.log('Mobile OTP login successful');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.6 Token Refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{refreshToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.environment.set('refreshToken', response.refreshToken);",
+                  "    console.log('Token refreshed successfully');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.7 Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.8 Password Reset Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/password/reset-request",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "password", "reset-request"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.9 Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token\",\n  \"newPassword\": \"NewSecurePassword123!\",\n  \"confirmPassword\": \"NewSecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/password/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "password", "reset"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.10 Email Verification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-email?token=verification-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-email"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "verification-token"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.11 Admin Endpoint Test",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "admin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.12 Test SMS",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/test-sms",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "test-sms"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Token Management",
+      "item": [
+        {
+          "name": "2.1 Token Refresh (Alternative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/token/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "token", "refresh"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.environment.set('refreshToken', response.refreshToken);",
+                  "    console.log('Token refreshed via alternative endpoint');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.2 Token Validation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"{{accessToken}}\""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/token/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "token", "validate"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. User Profile",
+      "item": [
+        {
+          "name": "3.1 Get User Profile by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "profile", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3.2 Update User Profile by ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated Doe\",\n  \"mobile\": \"+919876543211\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "profile", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3.3 Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "profile", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3.4 Update Current User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated Doe\",\n  \"mobile\": \"+919876543211\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/profile/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "profile", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. KYC",
+      "item": [
+        {
+          "name": "4.1 PAN Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idNumber\": \"ABCDE1234F\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kyc/pan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "kyc", "pan"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4.2 Aadhaar Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idNumber\": \"123456789012\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/kyc/aadhaar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "kyc", "aadhaar"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Aadhaar Document",
+      "item": [
+        {
+          "name": "5.1 Request e-Aadhaar OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"aadhaarNumber\": \"123456789012\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/aadhaar-document/request-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "aadhaar-document", "request-otp"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.2 Download e-Aadhaar PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"aadhaarNumber\": \"123456789012\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/aadhaar-document/download",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "aadhaar-document", "download"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.3 Upload Aadhaar PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "aadhaarNumber",
+                  "value": "123456789012",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/aadhaar-document/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "aadhaar-document", "upload"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.4 Download Stored Aadhaar PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/aadhaar-document/download-stored",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "aadhaar-document", "download-stored"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. User Relationships",
+      "item": [
+        {
+          "name": "6.1 Get Allowed User IDs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user-relationships/allowed-users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user-relationships", "allowed-users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.2 Create User Relationship",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user-relationships/create?userId1=user1&userId2=user2&relationshipType=FAMILY&notes=Family relationship",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user-relationships", "create"],
+              "query": [
+                {
+                  "key": "userId1",
+                  "value": "user1"
+                },
+                {
+                  "key": "userId2",
+                  "value": "user2"
+                },
+                {
+                  "key": "relationshipType",
+                  "value": "FAMILY"
+                },
+                {
+                  "key": "notes",
+                  "value": "Family relationship"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.3 Get User Relationships",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user-relationships/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user-relationships", "user", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.4 Get Related Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user-relationships/user/{{userId}}/related-users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user-relationships", "user", "{{userId}}", "related-users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.5 Delete Relationship",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user-relationships/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user-relationships", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.6 Get Relationship Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user-relationships/types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user-relationships", "types"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. SSO Secured Endpoints",
+      "item": [
+        {
+          "name": "7.1 Public Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/public/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "public", "info"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.2 Secure Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/secure/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "secure", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.3 User Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/user/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "user", "dashboard"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.4 Agent Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agentAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/agent/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "agent", "bookings"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.5 Admin Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/admin/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "admin", "users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.6 Secure Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/secure/data",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "secure", "data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.7 Update System Config",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"feature\": \"new_feature\",\n  \"enabled\": true,\n  \"settings\": {\n    \"timeout\": 30,\n    \"retries\": 3\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/admin/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "admin", "config"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.8 Sensitive Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/secure/sensitive",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "secure", "sensitive"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.9 Financial Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/secure/financial-reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "secure", "financial-reports"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.10 Token Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/token/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "token", "info"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.11 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sso/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "sso", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+} 

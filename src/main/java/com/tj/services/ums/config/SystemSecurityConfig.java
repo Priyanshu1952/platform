@@ -217,6 +217,7 @@ public class SystemSecurityConfig {
                                 "/api/v1/auth/otp/email/request",
                                 "/api/v1/auth/otp/email/login",
                                 "/api/v1/auth/refresh",
+                                "/ums/v1/build-status",
                                 "/actuator/health"
                         ).permitAll()
                         .anyRequest().authenticated()

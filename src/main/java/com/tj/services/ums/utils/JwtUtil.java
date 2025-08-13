@@ -28,15 +28,13 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.access-token-expiry}")
     private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-token-expiry}")
     private final long refreshTokenExpiration;
 
     private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
-    public JwtUtil(@Value("${jwt.secret}") String secretKey, @Value("${jwt.access-token-expiry}") long accessTokenExpiration, @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiration) {
+    public JwtUtil(@Value("${jwt.secret}") String secretKey, @Value("${jwt.access-token-expiry:360000}") long accessTokenExpiration, @Value("${jwt.refresh-token-expiry:864000}") long refreshTokenExpiration) {
         this.secretKey = secretKey;
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
