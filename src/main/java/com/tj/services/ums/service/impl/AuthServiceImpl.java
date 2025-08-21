@@ -1,5 +1,6 @@
 package com.tj.services.ums.service.impl;
 
+import com.tj.services.ums.constants.SecurityConstants;
 import com.tj.services.ums.model.OtpType;
 import com.tj.services.ums.dto.*;
 import com.tj.services.ums.exception.AuthException;
@@ -45,6 +46,7 @@ import java.util.HashMap;
 import java.util.Collections;
 import com.tj.services.ums.model.AddressInfo;
 import com.tj.services.ums.model.UserRole;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Service
@@ -67,6 +69,9 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final DeviceMetadataExtractor deviceMetadataExtractor;
+
+    @Value("${app.security.device-2fa.enabled:true}")
+    private boolean device2faEnabled;
 
     @Override
     public SendOtpResponse sendOtpToEmail(com.tj.services.ums.dto.EmailOtpRequest request) {
@@ -115,10 +120,6 @@ public class AuthServiceImpl implements AuthService {
     private static final Pattern LOWERCASE_PATTERN = Pattern.compile(".*[a-z].*");
     private static final Pattern DIGIT_PATTERN = Pattern.compile(".*[0-9].*");
     private static final Pattern SPECIAL_CHAR_PATTERN = Pattern.compile(".*[!@#$%^&*()_+\\-=\\[\\]{};':\\\\|,.<>/?].*");
-private static final int MAX_LOGIN_ATTEMPTS = 5;
-private static final long LOCK_TIME_DURATION = 15 * 60 * 1000; // 15 minutes
-private static final int MAX_OTP_ATTEMPTS = 3;
-private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
 
 
     @Override
@@ -299,9 +300,8 @@ private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
 
     // Helper methods
     void validatePasswordPolicy(String password) {
-
-        if (password == null || password.length() < 8 || password.length() > 20) {
-            throw new AuthException("Password must be between 8 and 20 characters");
+        if (password == null || password.length() < SecurityConstants.MIN_PASSWORD_LENGTH || password.length() > SecurityConstants.MAX_PASSWORD_LENGTH) {
+            throw new AuthException("Password must be between " + SecurityConstants.MIN_PASSWORD_LENGTH + " and " + SecurityConstants.MAX_PASSWORD_LENGTH + " characters");
         }
 
         if (!UPPERCASE_PATTERN.matcher(password).find()) {
@@ -320,7 +320,7 @@ private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
             throw new AuthException("Password must contain at least one special character");
         }
 
-        System.out.println("All password checks passed!");
+        log.debug("Password validation passed for user");
     }
 
     private void authenticateUser(String email, String password) {
@@ -368,6 +368,11 @@ private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
     }
 
     private boolean isNewDevice(String fullDeviceId) {
+        // Skip device-based 2FA if disabled (e.g., for tests)
+        if (!device2faEnabled) {
+            return false;
+        }
+        
         try {
             deviceService.getDeviceInfo(fullDeviceId);
             return false;
@@ -384,8 +389,8 @@ private static final long OTP_LOCK_TIME_DURATION = 5 * 60 * 1000; // 5 minutes
         int failedAttempts = user.getSecurityConfigValue("failedAttempts", Integer.class);
         Long lockTime = user.getSecurityConfigValue("lockTime", Long.class);
         
-        if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
-            if (lockTime == null || System.currentTimeMillis() > lockTime + LOCK_TIME_DURATION) {
+        if (failedAttempts >= SecurityConstants.MAX_LOGIN_ATTEMPTS) {
+            if (lockTime == null || System.currentTimeMillis() > lockTime + SecurityConstants.LOCK_TIME_DURATION.toMillis()) {
                 // Reset after lock time expires
                 Map<String, Object> securityConfig = user.getSecurityConfiguration();
                 securityConfig.put("failedAttempts", 0);

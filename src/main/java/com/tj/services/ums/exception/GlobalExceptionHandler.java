@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -72,6 +73,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .errorType("NOT_FOUND")
+                .message("Endpoint not found: " + ex.getRequestURL())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -84,5 +99,25 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(EmulationException.class)
+    public ResponseEntity<ApiResponse> handleEmulationException(EmulationException ex, WebRequest request) {
+        ApiResponse.Status status = ApiResponse.Status.builder()
+                .success(false)
+                .httpStatus(ex.getHttpStatus().value())
+                .build();
+
+        ApiResponse.ApiError error = ApiResponse.ApiError.builder()
+                .errCode("802") // Standard error code for emulation failures
+                .message(ex.getMessage())
+                .build();
+
+        ApiResponse response = ApiResponse.builder()
+                .status(status)
+                .errors(List.of(error))
+                .build();
+
+        return new ResponseEntity<>(response, ex.getHttpStatus());
     }
 }

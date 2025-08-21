@@ -36,23 +36,19 @@ out/
 ### VS Code ###
 .vscode/
 
-### Documentation and Reports ###
-# Analysis and documentation files
-API_PERFORMANCE_REPORT.md
-API_SECURITY_AUDIT_REPORT.md
-UMS_ARCHITECTURE_ANALYSIS_REPORT.md
-MISSING_ENDPOINTS_ANALYSIS.md
-UMS_POSTMAN_TESTING_PLAN.md
-UPDATE_USER_API_GUIDE.md
-UMS_ENHANCEMENT_SUMMARY.md
-UMS_RELATION_REFINEMENT_SUMMARY.md
-DEVICE_MANAGEMENT_SECURITY_IMPLEMENTATION_PLAN.md
-SSO_IMPLEMENTATION_GUIDE.md
-auth_testing_guide.md
-auth_flow_test.sh
-test_endpoints.sh
-test_update_user_api.sh
-api_performance_test.sh
-simple_performance_test.sh
-quick_performance_test.sh
-test_new_endpoints.sh
+### Documentation and Scripts ###
+# Markdown files
+*.md
+
+# Shell scripts
+*.sh
+
+### Test Artifacts ###
+# Postman collections and test files
+*Postman*.json
+
+### Logs ###
+# Application logs
+*.log
+logs/
+app.log

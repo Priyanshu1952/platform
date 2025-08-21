@@ -1,5 +1,6 @@
 package com.tj.services.ums.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,9 +9,15 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class RateLimiter {
 
+    @Value("${app.rate-limit.enabled:true}")
+    private boolean rateLimitEnabled;
+
     private final ConcurrentMap<String, SimpleRateLimiter> limiters = new ConcurrentHashMap<>();
 
     public boolean isBlocked(String key) {
+        if (!rateLimitEnabled) {
+            return false; // Rate limiting disabled
+        }
         SimpleRateLimiter limiter = limiters.computeIfAbsent(key, k -> new SimpleRateLimiter(10, 60)); // 10 requests per 60 seconds
         return !limiter.isAllowed();
     }

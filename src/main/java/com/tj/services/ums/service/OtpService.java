@@ -1,5 +1,6 @@
 package com.tj.services.ums.service;
 
+import com.tj.services.ums.constants.SecurityConstants;
 import com.tj.services.ums.dto.SendOtpRequest;
 import com.tj.services.ums.dto.SendOtpResponse;
 import com.tj.services.ums.exception.InvalidOtpException;
@@ -32,14 +33,20 @@ public class OtpService {
     private final EmailService emailService;
     private final Random random = new SecureRandom();
 
-    @Value("${app.otp.length:6}")
+    @Value("${otp.length:6}")
     private int otpLength;
 
-    @Value("${app.otp.expiry.minutes:5}")
+    @Value("${otp.expiry.minutes:5}")
     private int otpExpiryMinutes;
 
-    @Value("${app.otp.max.attempts:3}")
+    @Value("${otp.max.attempts:3}")
     private int maxAttempts;
+
+    @Value("${otp.test.mode.enabled:false}")
+    private boolean testModeEnabled;
+
+    @Value("${otp.test.value:123456}")
+    private String testOtpValue;
 
     @Autowired
     public OtpService(OtpTokenRepository otpTokenRepository, PasswordEncoder passwordEncoder, SmsService smsService, EmailService emailService) {
@@ -100,15 +107,15 @@ public class OtpService {
 
         OtpToken token = tokenOpt.get();
 
-        if (token.getAttempts() >= maxAttempts) {
+        if (token.getAttempts() >= SecurityConstants.MAX_OTP_ATTEMPTS) {
             otpTokenRepository.delete(token);
             throw new InvalidOtpException("Maximum OTP attempts exceeded. Please request a new OTP.");
         }
 
         log.info("Comparing OTP: provided='{}', storedHash='{}'", otp, token.getOtpHash());
-    boolean otpMatch = passwordEncoder.matches(otp, token.getOtpHash());
-    log.info("OTP match result: {}", otpMatch);
-    if (!otpMatch) {
+        boolean otpMatch = passwordEncoder.matches(otp, token.getOtpHash());
+        log.info("OTP match result: {}", otpMatch);
+        if (!otpMatch) {
             token.setAttempts(token.getAttempts() + 1);
             otpTokenRepository.save(token);
             throw new InvalidOtpException("Invalid OTP provided");
@@ -121,6 +128,10 @@ public class OtpService {
     }
 
     private String generateOtp() {
-        return String.format("%0" + otpLength + "d", random.nextInt((int) Math.pow(10, otpLength)));
+        if (testModeEnabled) {
+            log.info("[TEST] Using fixed OTP: {}", SecurityConstants.TEST_OTP_VALUE);
+            return SecurityConstants.TEST_OTP_VALUE;
+        }
+        return String.format("%0" + SecurityConstants.DEFAULT_OTP_LENGTH + "d", random.nextInt((int) Math.pow(10, SecurityConstants.DEFAULT_OTP_LENGTH)));
     }
 }

@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 
 import com.tj.services.ums.security.JwtAuthFilter;
 import com.tj.services.ums.security.JwtBlacklistFilter;
+import org.springframework.security.web.header.HeaderWriter;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -203,12 +204,13 @@ public class SystemSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter, JwtBlacklistFilter jwtBlacklistFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter, JwtBlacklistFilter jwtBlacklistFilter, HeaderWriter securityHeadersWriter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtBlacklistFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .headers(headers -> headers.addHeaderWriter(securityHeadersWriter))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/auth/login",
@@ -218,7 +220,9 @@ public class SystemSecurityConfig {
                                 "/api/v1/auth/otp/email/login",
                                 "/api/v1/auth/refresh",
                                 "/ums/v1/build-status",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/api/v1/sso/public/info",
+                                "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

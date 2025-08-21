@@ -100,6 +100,68 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    /**
+     * Generate JWT token for emulated user session
+     * @param targetUser The user being emulated
+     * @param emulatingUserId The ID of the user doing the emulation
+     * @return JWT token with emulation claims
+     */
+    public String generateEmulatedAccessToken(com.tj.services.ums.model.User targetUser, java.util.UUID emulatingUserId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("emulated", true);
+        claims.put("emulated_by", emulatingUserId.toString());
+        claims.put("target_user_id", targetUser.getId().toString());
+        claims.put("target_user_email", targetUser.getEmail());
+        
+        // Create UserDetails for the target user
+        UserDetails targetUserDetails = createUserDetailsFromUser(targetUser);
+        
+        return generateToken(claims, targetUserDetails, accessTokenExpiration);
+    }
+    
+    /**
+     * Extract emulation claims from JWT token
+     * @param token JWT token
+     * @return Map containing emulation information
+     */
+    public Map<String, Object> extractEmulationClaims(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Map<String, Object> emulationInfo = new HashMap<>();
+            
+            emulationInfo.put("emulated", claims.get("emulated", Boolean.class));
+            emulationInfo.put("emulated_by", claims.get("emulated_by", String.class));
+            emulationInfo.put("target_user_id", claims.get("target_user_id", String.class));
+            emulationInfo.put("target_user_email", claims.get("target_user_email", String.class));
+            
+            return emulationInfo;
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+    
+    /**
+     * Check if a token represents an emulated session
+     * @param token JWT token
+     * @return true if token represents emulated session
+     */
+    public boolean isEmulatedToken(String token) {
+        try {
+            Boolean emulated = extractClaim(token, claims -> claims.get("emulated", Boolean.class));
+            return Boolean.TRUE.equals(emulated);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    private UserDetails createUserDetailsFromUser(com.tj.services.ums.model.User user) {
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                "", // No password needed for emulation
+                java.util.Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
+    }
+
     public boolean validateRefreshToken(String token) {
         try {
             return !isTokenExpired(token) &&
